@@ -36,6 +36,10 @@ class InvalidImageNameFormatException(LXDException):
     def __init__(self, name: str):
         super().__init__(msg=f"The image name is not the correct length or format. It has to be short hash of 12 hexadecimal, long hash of 64 hexadecimal or a combine of alphanumeric, dash, dot and forward slash of 1 to 64 length: {name}")
 
+class InvalidIPAddressException(LXDException):
+    def __init__(self, ipAddress: str):
+        super().__init__(msg=f"IP address {f'{chr(34)}{ipAddress}{chr(34)} ' if ipAddress else ''}is not a valid IPv4 or IPv6.")
+
 class DeviceNotFoundException(ObjectNotFoundException):
     def __init__(self, name: str=None):
         super().__init__(msg=f"Device {f'{chr(34)}{name}{chr(34)} ' if name else ''}not found.")
@@ -188,6 +192,34 @@ class NetworkForwardNotFoundException(NetworkForwardException, ObjectNotFoundExc
     def __init__(self, name: str=None):
         super().__init__(msg=f"Network Forward {f'{chr(34)}{name}{chr(34)} ' if name else ''}not found.")
 
+class NetworkForwardPortNotFoundException(NetworkForwardException, ObjectNotFoundException):
+    def __init__(self, ports):
+        super().__init__(msg=f"Network Forward port \"{ports}\" was not found.")
+
 class NetworkForwardAlreadyExistsException(NetworkForwardException, ObjectAlreadyExistsException):
     def __init__(self):
         super().__init__(msg="Network Forward already exists.")
+
+class NetworkForwardPortAlreadyExistsException(NetworkForwardException, ObjectAlreadyExistsException):
+    def __init__(self, *, protocol, port):
+        super().__init__(msg=f"Network Forward port \"{port}\" already exists for protocol \"{protocol}\".")
+
+class InvalidPortProtocolException(NetworkForwardException):
+    def __init__(self, allowed, protocol=None):
+        super().__init__(msg=f"Protocol {f'{chr(34)}{protocol}{chr(34)} ' if protocol else ''}must be one of the following: {allowed}")
+
+class StartLowerThanEndException(NetworkForwardException):
+    def __init__(self, ports):
+        super().__init__(msg=f"Invalid port range. Start must be lower than end: {ports}")
+
+class InvalidPortRangeException(NetworkForwardException):
+    def __init__(self, ports):
+        super().__init__(msg=f"Invalid port range, can only be digits with dashes and commas: {ports}")
+
+class DuplicatePortException(NetworkForwardException):
+    def __init__(self, *, ports, duplicate):
+        super().__init__(msg=f"Duplicate port \"{duplicate}\" with: {ports}")
+
+class InvalidTargetPortsException(NetworkForwardException):
+    def __init__(self, *, listenPorts, targetPorts):
+        super().__init__(msg=f"Target ports \"{targetPorts}\" must either be empty or the same amount of listen ports \"{listenPorts}\".")
