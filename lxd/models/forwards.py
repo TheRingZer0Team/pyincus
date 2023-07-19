@@ -162,7 +162,7 @@ class NetworkForward(Model):
 
         return forward
 
-    def refresh(self)
+    def refresh(self):
         self.attributes = self.get(listenAddress=self.listenAddress).attributes
 
     def save(self, description: str=None):
