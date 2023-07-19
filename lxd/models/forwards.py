@@ -162,7 +162,12 @@ class NetworkForward(Model):
 
         return forward
 
+    def refresh(self)
+        self.attributes = self.get(listenAddress=self.listenAddress).attributes
+
     def save(self, description: str=None):
+        self.refresh()
+
         if(not description is None):
             if(not isinstance(description, str)):
                 raise InvalidDescriptionException()

@@ -145,7 +145,7 @@ class Instance(Model):
 
         return instance
 
-    def copy(self, source: str, name: str=None, *, snapshotName: str=None, remoteSource: str=None, remoteDestination: str=None, projectSource: str=None, projectDestination: str=None, config: dict=None, device: dict=None, profile: str=None, mode: str='pull', network: str=None, storage: str=None, allowInconsistent: bool=False, empty: bool=False, instanceOnly: bool=False, noProfile: bool=False, refresh: bool=False, stateless: bool=False, vm: bool=False):
+    def copy(self, source: str, name: str=None, *, snapshotName: str=None, remoteSource: str=None, remoteDestination: str=None, projectSource: str=None, projectDestination: str=None, config: dict=None, device: dict=None, profile: str=None, mode: str='pull', storage: str=None, allowInconsistent: bool=False, empty: bool=False, instanceOnly: bool=False, noProfile: bool=False, refresh: bool=False, stateless: bool=False, vm: bool=False):
         self._validateObjectFormat(source, name, snapshotName, remoteSource, remoteDestination, projectSource, projectDestination, profile, network, storage)
 
         if(name is None and not refresh):
@@ -185,7 +185,6 @@ class Instance(Model):
                     {config if config else ""} 
                     {device if device else ""} 
                     {f"--mode='{mode}' " if mode else ""}
-                    {f"--network='{network}' " if network else ""}
                     {f"--profile='{profile}' " if not noProfile and profile else ""}
                     {f"--storage='{storage}' " if storage else ""}
                     {f"--target-project='{projectDestination}' " if projectDestination else ""}
@@ -370,6 +369,8 @@ class Instance(Model):
             raise InstanceException(result["data"])
 
     def save(self, config: dict=None, devices: dict=None, profiles: list=None, description: str=None):
+        self.refresh()
+
         if(not description is None):
             if(not isinstance(description, str)):
                 raise InvalidDescriptionException()

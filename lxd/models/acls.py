@@ -110,7 +110,7 @@ class NetworkACL(Model):
                     if(g[k] is None):
                         del g[k]
                         continue
-                        
+
                     if(not k in self.possibleRuleKeys):
                         raise InvalidACLRuleKeyException(allowed=self.possibleRuleKeys)
 
@@ -172,6 +172,8 @@ class NetworkACL(Model):
         self.attributes["name"] = name
 
     def save(self, description: str=None, egress: list=None, ingress: list=None):
+        self.refresh()
+        
         if(not description is None):
             if(not isinstance(description, str)):
                 raise InvalidDescriptionException()

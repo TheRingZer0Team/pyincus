@@ -106,6 +106,9 @@ class Model(object):
     def exists(self, name: str, **kwargs):
         return not self._fetch(name=name, **kwargs) is None
 
+    def refresh(self):
+        self.__attributes = self.get(name=self.name).attributes
+
     def _validateObjectFormat(self, *args):
         for arg in args:
             if(arg and (not isinstance(arg, str) or not REGEX_LXD_OBJECT_NAME.match(arg))):
