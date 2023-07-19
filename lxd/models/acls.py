@@ -103,10 +103,14 @@ class NetworkACL(Model):
                 if("protocol" in g and not g["protocol"] in self.possibleProtocols):
                     raise InvalidACLRuleProtocolException(allowed=self.possibleProtocols, protocol=g["protocol"])
 
-                if(("source_port" in g or "destination_port" in g) and not "protocol" in g):
+                if((("source_port" in g and g["source_port"]) or ("destination_port" in g and g["destination_port"])) and (not "protocol" in g or g["protocol"] is None)):
                     raise MissingProtocolException()
 
                 for k in g.keys():
+                    if(g[k] is None):
+                        del g[k]
+                        continue
+                        
                     if(not k in self.possibleRuleKeys):
                         raise InvalidACLRuleKeyException(allowed=self.possibleRuleKeys)
 
