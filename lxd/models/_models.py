@@ -104,7 +104,7 @@ class Model(object):
             return self.__class__(parent=self.parent, **yaml.safe_load(result["data"]))
 
     def exists(self, name: str, **kwargs):
-        return not self._fetch(name=name, **kwargs) is None
+        return isinstance(self._fetch(name=name, **kwargs), self.__class__)
 
     def refresh(self):
         self.__attributes = self.get(name=self.name).attributes
