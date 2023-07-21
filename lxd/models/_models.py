@@ -6,7 +6,7 @@ from lxd.exceptions import  LXDException,\
 from lxd.utils import REGEX_LXD_OBJECT_NAME
 
 class Model(object):
-    def __init__(self, *, parent=None, **kwargs):
+    def __init__(self, *, parent: Model=None, **kwargs):
         self.__parent = parent
         self.__attributes = kwargs
 

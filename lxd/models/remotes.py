@@ -8,7 +8,7 @@ from lxd.exceptions import  RemoteException,\
                             RemoteLocalCannotBeModifiedException
 
 class Remote(Model):
-    def __init__(self, parent, name: str=None, **kwargs):
+    def __init__(self, parent: Model=None, name: str=None, **kwargs):
         super().__init__(parent=parent, name=name, **kwargs)
 
     @property

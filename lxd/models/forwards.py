@@ -18,7 +18,7 @@ from lxd.exceptions import  NetworkForwardException,\
 REGEX_LIST_OF_PORTS = re.compile(r'^[1-9][0-9]{0,4}(([\-][1-9][0-9]{0,4})?([,][1-9][0-9]{0,4}|$))*$')
 
 class NetworkForward(Model):
-    def __init__(self, parent, name: str=None, **kwargs):
+    def __init__(self, parent: Model=None, name: str=None, **kwargs):
         super().__init__(parent=parent, name=name, **kwargs)
 
     @property
@@ -63,7 +63,7 @@ class NetworkForward(Model):
 
     def validatePortList(self, ports: "str | int"):
         tmpPortRanges = []
-        
+
         if(isinstance(ports, int)):
             if(ports < 1 or ports > 65535):
                 raise InvalidPortRangeException(ports=ports)
