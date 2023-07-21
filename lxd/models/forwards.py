@@ -61,37 +61,43 @@ class NetworkForward(Model):
     def ports(self):
         return self.get(listenAddress=self.listenAddress).attributes["ports"]
 
-    def validatePortList(self, ports: list):
-        if(not REGEX_LIST_OF_PORTS.match(ports)):
-            raise InvalidPortRangeException(ports=ports)
-
+    def validatePortList(self, ports: "str | int"):
         tmpPortRanges = []
-        if(ports.count(",") > 0):
-            tmpPorts = ports.split(",")
+        
+        if(isinstance(ports, int)):
+            if(ports < 1 or ports > 65535):
+                raise InvalidPortRangeException(ports=ports)
+            tmpPortRanges.append(ports)
+        else:
+            if(not REGEX_LIST_OF_PORTS.match(ports)):
+                raise InvalidPortRangeException(ports=ports)
 
-            for port in tmpPorts:
-                if(port.find("-") > -1):
-                    start, end = [int(p) for p in port.split("-")]
-                    if(start >= end):
-                        raise StartLowerThanEndException(ports=port)
+            if(ports.count(",") > 0):
+                tmpPorts = ports.split(",")
 
-                    for i in range(start, end+1):
-                        if(i in tmpPortRanges):
-                            raise DuplicatePortException(ports=ports, duplicate=i)
+                for port in tmpPorts:
+                    if(port.find("-") > -1):
+                        start, end = [int(p) for p in port.split("-")]
+                        if(start >= end):
+                            raise StartLowerThanEndException(ports=port)
 
-                    tmpPortRanges.extend(range(start, end+1))
-                else:
-                    port = int(port)
-                    if(port in tmpPortRanges):
-                        raise DuplicatePortException(ports=ports, duplicate=port)
-                    
-                    tmpPortRanges.append(port)
-        elif(ports.find("-") > -1):
-            start, end = [int(p) for p in ports.split("-")]
-            if(start >= end):
-                raise StartLowerThanEndException(ports=ports)
-            
-            tmpPortRanges.extend(range(start, end+1))
+                        for i in range(start, end+1):
+                            if(i in tmpPortRanges):
+                                raise DuplicatePortException(ports=ports, duplicate=i)
+
+                        tmpPortRanges.extend(range(start, end+1))
+                    else:
+                        port = int(port)
+                        if(port in tmpPortRanges):
+                            raise DuplicatePortException(ports=ports, duplicate=port)
+                        
+                        tmpPortRanges.append(port)
+            elif(ports.find("-") > -1):
+                start, end = [int(p) for p in ports.split("-")]
+                if(start >= end):
+                    raise StartLowerThanEndException(ports=ports)
+                
+                tmpPortRanges.extend(range(start, end+1))
 
         return tmpPortRanges
 
