@@ -6,8 +6,7 @@ from lxd.exceptions import  LXDException,\
 from lxd.utils import REGEX_LXD_OBJECT_NAME
 
 class Model(object):
-    def __init__(self, *, parent: Model=None, **kwargs):
-        self.__parent = parent
+    def __init__(self, *, **kwargs):
         self.__attributes = kwargs
 
     @property
@@ -24,7 +23,7 @@ class Model(object):
 
     @property
     def parent(self):
-        return self.__parent
+        return self.__attributes["parent"]
 
     def list(self, filter: str='', skipValidation=False, **kwargs):
         if(not skipValidation):
