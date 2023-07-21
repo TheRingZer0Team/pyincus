@@ -112,6 +112,10 @@ class InstanceIsNotRunningException(LXDException):
     def __init__(self):
         super().__init__(msg="The instance is not running.")
 
+class InstanceIsPausedException(LXDException):
+    def __init__(self):
+        super().__init__(msg="The instance is paused.")
+
 class InstanceIsAlreadyStoppedException(LXDException):
     def __init__(self):
         super().__init__(msg="The instance is already stopped.")
@@ -119,6 +123,10 @@ class InstanceIsAlreadyStoppedException(LXDException):
 class InstanceTimeoutExceededException(LXDException):
     def __init__(self):
         super().__init__(msg="The time allowed has exceeded.")
+
+class InstanceExecFailedException(LXDException):
+    def __init__(self):
+        super().__init__(msg="Instance exec failed.")
 
 ######################
 # Network Exceptions #

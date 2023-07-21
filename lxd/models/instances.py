@@ -11,8 +11,10 @@ from ._models import Model
 from lxd.exceptions import  DeviceNotFoundException,\
                             InstanceAlreadyExistsException,\
                             InstanceException,\
+                            InstanceExecFailedException,\
                             InstanceIsAlreadyStoppedException,\
                             InstanceIsNotRunningException,\
+                            InstanceIsPausedException,\
                             InstanceIsRunningException,\
                             InstanceNotFoundException,\
                             InstanceTimeoutExceededException,\
@@ -226,6 +228,27 @@ class Instance(Model):
                 raise InstanceNotFoundException()
 
             raise InstanceException(result["data"])
+
+    def exec(self, cmd: str):
+        if(cmd.find("'") > -1):
+            raise InstanceException("Can't use single quotes in an exec. This is to avoid breaking out and executing code on the host.")
+        result = self.lxd.run(cmd=f"lxc exec --project='{self.project.name}' '{self.remote.name}':'{self.name}' -- bash -c '{cmd}'")
+
+        if(result["error"]):
+            if('Instance not found' in result["data"]):
+                raise InstanceNotFoundException()
+            if('Failed to retrieve PID of executing child process' in result["data"]):
+                raise InstanceExecFailedException()
+            if('Command not found' in result["data"]):
+                raise InstanceExecFailedException()
+            if('Instance is not running' in result["data"]):
+                raise InstanceIsNotRunningException()
+            if('Instance is frozen' in result["data"]):
+                raise InstanceIsPausedException()
+
+            raise InstanceException(result["data"])
+
+        return result["data"]
 
     def init(self, image: str, name: str, *, remoteSource: str=None, config: dict=None, device: dict=None, profile: str=None, network: str=None, storage: str=None, empty: bool=False, noProfile: bool=False, vm: bool=False):
         self.validateObjectFormat(name, remoteSource, profile, network, storage)
