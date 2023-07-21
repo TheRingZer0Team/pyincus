@@ -61,7 +61,7 @@ class NetworkForward(Model):
     def ports(self):
         return self.get(listenAddress=self.listenAddress).attributes["ports"]
 
-    def __validatePortList(self, ports: list):
+    def validatePortList(self, ports: list):
         if(not REGEX_LIST_OF_PORTS.match(ports)):
             raise InvalidPortRangeException(ports=ports)
 
@@ -110,10 +110,10 @@ class NetworkForward(Model):
         if(listenPorts is None):
             raise InvalidPortRangeException(ports=listenPorts)
 
-        c1 = len(self.__validatePortList(ports=listenPorts))
+        c1 = len(self.validatePortList(ports=listenPorts))
     
         if(not targetPorts is None):
-            c2 = len(self.__validatePortList(ports=targetPorts))
+            c2 = len(self.validatePortList(ports=targetPorts))
 
             if(c2 != c1):
                 raise InvalidTargetPortsException(listenPorts=listenPorts, targetPorts=targetPorts)
@@ -134,7 +134,7 @@ class NetworkForward(Model):
             raise InvalidPortProtocolException(allowed=self.possibleProtocols, protocol=protocol)
 
         if(not listenPorts is None):
-            self.__validatePortList(ports=listenPorts)
+            self.validatePortList(ports=listenPorts)
 
         result = self.lxd.run(cmd=f"lxc network forward port remove --project='{self.project.name}' '{self.remote.name}':'{self.network.name}' '{self.listenAddress}' '{protocol}' '{listenPorts}'")
 

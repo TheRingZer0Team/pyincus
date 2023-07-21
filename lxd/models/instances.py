@@ -128,7 +128,7 @@ class Instance(Model):
     def _fetch(self, name: str):
         i = None
 
-        self._validateObjectFormat(name)
+        self.validateObjectFormat(name)
 
         instances = self.list(filter=f"^{name}$", skipValidation=True)
 
@@ -146,7 +146,7 @@ class Instance(Model):
         return instance
 
     def copy(self, source: str, name: str=None, *, snapshotName: str=None, remoteSource: str=None, remoteDestination: str=None, projectSource: str=None, projectDestination: str=None, config: dict=None, device: dict=None, profile: str=None, mode: str='pull', storage: str=None, allowInconsistent: bool=False, empty: bool=False, instanceOnly: bool=False, noProfile: bool=False, refresh: bool=False, stateless: bool=False, vm: bool=False):
-        self._validateObjectFormat(source, name, snapshotName, remoteSource, remoteDestination, projectSource, projectDestination, profile, storage)
+        self.validateObjectFormat(source, name, snapshotName, remoteSource, remoteDestination, projectSource, projectDestination, profile, storage)
 
         if(name is None and not refresh):
             raise InstanceException("""if(name is None and not refresh):""")
@@ -224,7 +224,7 @@ class Instance(Model):
             raise InstanceException(result["data"])
 
     def init(self, image: str, name: str, *, remoteSource: str=None, config: dict=None, device: dict=None, profile: str=None, network: str=None, storage: str=None, empty: bool=False, noProfile: bool=False, vm: bool=False):
-        self._validateObjectFormat(name, remoteSource, profile, network, storage)
+        self.validateObjectFormat(name, remoteSource, profile, network, storage)
         if(not REGEX_IMAGE_NAME.match(image)):
             raise InvalidImageNameFormatException(image)
 
@@ -264,7 +264,7 @@ class Instance(Model):
         return Instance(parent=self.parent, name=name)
 
     def launch(self, image: str, name: str, *, remoteSource: str=None, config: dict=None, device: dict=None, profile: str=None, network: str=None, storage: str=None, empty: bool=False, noProfile: bool=False, vm: bool=False):
-        self._validateObjectFormat(name, remoteSource, profile, network, storage)
+        self.validateObjectFormat(name, remoteSource, profile, network, storage)
         if(not REGEX_IMAGE_NAME.match(image)):
             raise InvalidImageNameFormatException(image)
 
@@ -312,7 +312,7 @@ class Instance(Model):
             raise InstanceException(result["data"])
 
     def rename(self, name: str):
-        self._validateObjectFormat(name)
+        self.validateObjectFormat(name)
 
         result = self.lxd.run(cmd=f"lxc rename --project='{self.project.name}' '{self.remote.name}':'{self.name}' '{name}'")
 
@@ -335,7 +335,7 @@ class Instance(Model):
             raise InstanceException(result["data"])
 
     def restore(self, name: str, *, stateful: bool=False):
-        self._validateObjectFormat(name)
+        self.validateObjectFormat(name)
 
         result = self.lxd.run(cmd=f"lxc restore {'--stateful ' if stateful else ''}--project='{self.project.name}' '{self.remote.name}':'{self.name}' {name}")
 
@@ -361,7 +361,7 @@ class Instance(Model):
             raise InstanceException(result["data"])
 
     def snapshot(self, name: str, *, reuse: bool=False, stateful: bool=False):
-        self._validateObjectFormat(name)
+        self.validateObjectFormat(name)
 
         result = self.lxd.run(cmd=f"lxc snapshot {'--reuse ' if reuse else ''}{'--stateful ' if stateful else ''}--project='{self.project.name}' '{self.remote.name}':'{self.name}' {name}")
 
@@ -410,7 +410,7 @@ class Instance(Model):
             if(not isinstance(profiles, list)):
                 raise InstanceException("profiles must be a list containing strings.")
 
-            self._validateObjectFormat(*profiles)
+            self.validateObjectFormat(*profiles)
 
         result = self.lxd.run(cmd=f"lxc config edit --project='{self.project.name}' '{self.remote.name}':'{self.name}'", input=yaml.safe_dump(self.attributes))
 

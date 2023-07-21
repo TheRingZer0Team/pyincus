@@ -55,7 +55,7 @@ class Project(Model):
         return project
 
     def rename(self, name: str):
-        self._validateObjectFormat(name)
+        self.validateObjectFormat(name)
 
         result = self.lxd.run(cmd=f"lxc project rename '{self.remote.name}':'{self.name}' '{name}'")
 

@@ -79,7 +79,7 @@ class NetworkACL(Model):
     def usedBy(self):
         return self.get(name=self.name).attributes["used_by"]
 
-    def __validateGress(self, gress: list):
+    def validateGress(self, gress: list):
         if(not isinstance(gress, list)):
             raise InvalidACLGressException()
 
@@ -120,7 +120,7 @@ class NetworkACL(Model):
         return gress
 
     def create(self, name: str, *, description: str=None, egress: list=None, ingress: list=None):
-        self._validateObjectFormat(name)
+        self.validateObjectFormat(name)
 
         self.attributes["name"] = name
 
@@ -159,7 +159,7 @@ class NetworkACL(Model):
         return acl
 
     def rename(self, name: str):
-        self._validateObjectFormat(name)
+        self.validateObjectFormat(name)
 
         result = self.lxd.run(cmd=f"lxc network acl rename --project='{self.project.name}' '{self.remote.name}':'{self.name}' '{name}'")
 
@@ -181,10 +181,10 @@ class NetworkACL(Model):
             self.attributes["description"] = description
         
         if(not egress is None):
-            self.attributes["egress"] = self.__validateGress(gress=egress)
+            self.attributes["egress"] = self.validateGress(gress=egress)
         
         if(not ingress is None):
-            self.attributes["ingress"] = self.__validateGress(gress=ingress)
+            self.attributes["ingress"] = self.validateGress(gress=ingress)
 
         result = self.lxd.run(cmd=f"lxc network acl edit --project='{self.project.name}' '{self.remote.name}':'{self.name}'", input=yaml.safe_dump(self.attributes))
 

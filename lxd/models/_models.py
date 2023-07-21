@@ -28,7 +28,7 @@ class Model(object):
 
     def list(self, filter: str='', skipValidation=False, **kwargs):
         if(not skipValidation):
-            self._validateObjectFormat(filter)
+            self.validateObjectFormat(filter)
 
         cmd = None
         
@@ -79,7 +79,7 @@ class Model(object):
     
     def _fetch(self, name: str, skipValidation=False, **kwargs):
         if(not skipValidation):
-            self._validateObjectFormat(name)
+            self.validateObjectFormat(name)
 
         cmd = None
         
@@ -109,7 +109,7 @@ class Model(object):
     def refresh(self):
         self.__attributes = self.get(name=self.name).attributes
 
-    def _validateObjectFormat(self, *args):
+    def validateObjectFormat(self, *args):
         for arg in args:
             if(arg and (not isinstance(arg, str) or not REGEX_LXD_OBJECT_NAME.match(arg))):
                 raise InvalidLXDObjectNameFormatException(arg)

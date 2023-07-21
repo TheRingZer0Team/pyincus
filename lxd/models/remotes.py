@@ -51,7 +51,7 @@ class Remote(Model):
         return remote
 
     def rename(self, name: str):
-        self._validateObjectFormat(name)
+        self.validateObjectFormat(name)
 
         result = self.lxd.run(cmd=f"lxc remote rename '{self.name}' '{name}'")
 
