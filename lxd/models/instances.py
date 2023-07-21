@@ -125,6 +125,10 @@ class Instance(Model):
     def snapshots(self):
         return self.get(name=self.name).attributes["snapshots"]
 
+    def validateImageName(self, image):
+        if(not REGEX_IMAGE_NAME.match(image)):
+            raise InvalidImageNameFormatException(image)
+
     def _fetch(self, name: str):
         i = None
 
@@ -225,8 +229,7 @@ class Instance(Model):
 
     def init(self, image: str, name: str, *, remoteSource: str=None, config: dict=None, device: dict=None, profile: str=None, network: str=None, storage: str=None, empty: bool=False, noProfile: bool=False, vm: bool=False):
         self.validateObjectFormat(name, remoteSource, profile, network, storage)
-        if(not REGEX_IMAGE_NAME.match(image)):
-            raise InvalidImageNameFormatException(image)
+        self.validateImageName(image)
 
         if(config):
             # Expect to receive {"key":"value"}
@@ -265,8 +268,7 @@ class Instance(Model):
 
     def launch(self, image: str, name: str, *, remoteSource: str=None, config: dict=None, device: dict=None, profile: str=None, network: str=None, storage: str=None, empty: bool=False, noProfile: bool=False, vm: bool=False):
         self.validateObjectFormat(name, remoteSource, profile, network, storage)
-        if(not REGEX_IMAGE_NAME.match(image)):
-            raise InvalidImageNameFormatException(image)
+        self.validateImageName(image)
 
         if(config):
             # Expect to receive {"key":"value"}
