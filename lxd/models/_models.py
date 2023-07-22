@@ -7,6 +7,12 @@ from lxd.utils import REGEX_LXD_OBJECT_NAME
 
 class Model(object):
     def __init__(self, **kwargs):
+        if("parent" in kwargs):
+            self.__parent = kwargs["parent"]
+            del kwargs["parent"]
+        else:
+            self.__parent = None
+            
         self.__attributes = kwargs
 
     @property
@@ -23,7 +29,7 @@ class Model(object):
 
     @property
     def parent(self):
-        return self.__attributes["parent"]
+        return self.__parent
 
     def list(self, filter: str='', skipValidation=False, **kwargs):
         if(not skipValidation):
