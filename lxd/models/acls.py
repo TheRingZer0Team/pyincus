@@ -136,6 +136,7 @@ class NetworkACL(Model):
             self.save(description=description, egress=egress, ingress=ingress)
         except NetworkACLException as error:
             self.delete()
+            raise error
 
         return self.get(name=name)
 

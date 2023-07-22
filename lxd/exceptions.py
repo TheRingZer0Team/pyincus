@@ -104,27 +104,27 @@ class InstanceAlreadyExistsException(InstanceException, ObjectAlreadyExistsExcep
     def __init__(self, name: str=None):
         super().__init__(msg=f"Instance {f'{chr(34)}{name}{chr(34)} ' if name else ''}already exists.")
 
-class InstanceIsRunningException(LXDException):
+class InstanceIsRunningException(InstanceException):
     def __init__(self):
         super().__init__(msg="The instance is running.")
 
-class InstanceIsNotRunningException(LXDException):
+class InstanceIsNotRunningException(InstanceException):
     def __init__(self):
         super().__init__(msg="The instance is not running.")
 
-class InstanceIsPausedException(LXDException):
+class InstanceIsPausedException(InstanceException):
     def __init__(self):
         super().__init__(msg="The instance is paused.")
 
-class InstanceIsAlreadyStoppedException(LXDException):
+class InstanceIsAlreadyStoppedException(InstanceException):
     def __init__(self):
         super().__init__(msg="The instance is already stopped.")
 
-class InstanceTimeoutExceededException(LXDException):
+class InstanceTimeoutExceededException(InstanceException):
     def __init__(self):
         super().__init__(msg="The time allowed has exceeded.")
 
-class InstanceExecFailedException(LXDException):
+class InstanceExecFailedException(InstanceException):
     def __init__(self):
         super().__init__(msg="Instance exec failed.")
 
