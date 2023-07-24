@@ -152,7 +152,7 @@ class NetworkForward(Model):
     def list(self):
         return super().list(filter=self.network.name)
 
-    def get(self, listenAddress):
+    def get(self, listenAddress: str):
         if(not isinstance(listenAddress, str)):
             raise InvalidIPAddressException(listenAddress)
 
@@ -167,6 +167,9 @@ class NetworkForward(Model):
             raise NetworkForwardNotFoundException()
 
         return forward
+
+    def exists(self, listenAddress: str):
+        return isinstance(self._fetch(name=self.network.name, listenAddress=listenAddress, skipValidation=True), self.__class__)
 
     def refresh(self):
         self.attributes = self.get(listenAddress=self.listenAddress).attributes

@@ -40,8 +40,8 @@ class LXD(object):
 
         return {"data":result, "error":error}
 
-    def check(self, **kwargs):
-        result = self.run(cmd="lxc --version", **kwargs)
+    def check(self):
+        result = self.run(cmd="lxc --version")
         
         if(result["error"]):
             raise LXDException(f"Unexpected error: {result['error']}")

@@ -127,7 +127,7 @@ class Instance(Model):
     def snapshots(self):
         return self.get(name=self.name).attributes["snapshots"]
 
-    def validateImageName(self, image):
+    def validateImageName(self, image: str):
         if(not REGEX_IMAGE_NAME.match(image)):
             raise InvalidImageNameFormatException(image)
 
