@@ -50,3 +50,4 @@ class LXD(object):
             raise LXDVersionException(libVersion=LXD_VERSION, clientVersion=float(result["data"]))
 
 lxd = LXD()
+remotes = lxd.remotes
