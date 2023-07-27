@@ -230,8 +230,7 @@ class Instance(Model):
             raise InstanceException(result["data"])
 
     def exec(self, cmd: str):
-        if(cmd.find("'") > -1):
-            raise InstanceException("Can't use single quotes in an exec. This is to avoid breaking out and executing code on the host.")
+        cmd = cmd.replace("'","'\"'\"'")
         result = self.lxd.run(cmd=f"lxc exec --project='{self.project.name}' '{self.remote.name}':'{self.name}' -- bash -c '{cmd}'")
 
         if(result["error"]):

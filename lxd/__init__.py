@@ -32,7 +32,7 @@ class LXD(object):
 
         r = subprocess.run(cmd, shell=True, capture_output=True, text=True, **kwargs)
 
-        if(r.stderr):
+        if(r.returncode != 0):
             result = r.stderr.strip()
             error = True
         else:
