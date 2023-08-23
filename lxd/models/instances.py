@@ -327,8 +327,8 @@ class Instance(Model):
 
         return Instance(parent=self.parent, name=name)
 
-    def pause(self):
-        result = self.lxd.run(cmd=f"lxc pause --project='{self.project.name}' '{self.remote.name}':'{self.name}'")
+    def pause(self, timeout: int=None):
+        result = self.lxd.run(cmd=f"lxc pause --project='{self.project.name}' '{self.remote.name}':'{self.name}'", timeout=timeout)
 
         if(result["error"]):
             if("Error: The instance isn't running" == result["data"]):
