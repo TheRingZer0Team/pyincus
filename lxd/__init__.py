@@ -5,7 +5,7 @@ from .exceptions import LXDException,\
                         LXDVersionException
 from .models.remotes import Remote
 
-LXD_VERSION = 5.15
+LXD_VERSION = 5.17
 
 class LXD(object):
     def __init__(self, cwd=None):
