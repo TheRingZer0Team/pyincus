@@ -66,11 +66,11 @@ class Network(Model):
 
     @property
     def possibleConfigKeysForBridge(self):
-        return ["ipv4", "ipv6"]
+        return ["ipv4.address","ipv4.dhcp","ipv4.dhcp.expiry","ipv4.dhcp.gateway","ipv4.dhcp.ranges","ipv4.firewall","ipv4.nat","ipv4.nat.address","ipv4.nat.order","ipv4.ovn.ranges","ipv4.routes","ipv4.routing","ipv6.address","ipv6.dhcp","ipv6.dhcp.expiry","ipv6.dhcp.ranges","ipv6.dhcp.stateful","ipv6.firewall","ipv6.nat","ipv6.nat.address","ipv6.nat.order","ipv6.ovn.ranges","ipv6.routes","ipv6.routing"]
 
     @property
     def possibleConfigKeysForOVN(self):
-        return ["network", "ipv4", "ipv6"]
+        return ["network", "ipv4.address", "ipv4.dhcp", "ipv4.l3only", "ipv4.nat", "ipv4.nat.address", "ipv6.address", "ipv6.dhcp", "ipv6.dhcp.stateful", "ipv6.l3only", "ipv6.nat", "ipv6.nat.address"]]
 
     def get(self, name: str):
         network = self._fetch(name=name)
