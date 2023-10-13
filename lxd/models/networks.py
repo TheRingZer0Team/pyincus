@@ -33,12 +33,20 @@ class Network(Model):
         return NetworkForward(self)
 
     @property
-    def config(self): # Need setter
+    def config(self):
         return self.get(name=self.name).attributes["config"]
 
+    @config.setter
+    def config(self, value):
+        self.save(config=value)
+
     @property
-    def description(self): # Need setter
+    def description(self):
         return self.get(name=self.name).attributes["description"]
+
+    @description.setter
+    def description(self, value):
+        self.save(description=value)
 
     @property
     def type(self):
