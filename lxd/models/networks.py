@@ -78,7 +78,7 @@ class Network(Model):
 
     @property
     def possibleConfigKeysForOVN(self):
-        return ["bridge.hwaddr", "bridge.mtu", "dns.domain", "dns.search", "dns.zone.forward", "dns.zone.reverse.ipv4", "dns.zone.reverse.ipv6", "ipv4.address", "ipv4.dhcp", "ipv4.l3only", "ipv4.nat", "ipv4.nat.address", "ipv6.address", "ipv6.dhcp", "ipv6.dhcp.stateful", "ipv6.l3only", "ipv6.nat", "ipv6.nat.address", "security.acls", "security.acls.default.egress.action", "security.acls.default.egress.logged", "security.acls.default.ingress.action", "security.acls.default.ingress.logged"]
+        return ["network", "bridge.hwaddr", "bridge.mtu", "dns.domain", "dns.search", "dns.zone.forward", "dns.zone.reverse.ipv4", "dns.zone.reverse.ipv6", "ipv4.address", "ipv4.dhcp", "ipv4.l3only", "ipv4.nat", "ipv4.nat.address", "ipv6.address", "ipv6.dhcp", "ipv6.dhcp.stateful", "ipv6.l3only", "ipv6.nat", "ipv6.nat.address", "security.acls", "security.acls.default.egress.action", "security.acls.default.egress.logged", "security.acls.default.ingress.action", "security.acls.default.ingress.logged"]
 
     def get(self, name: str):
         network = self._fetch(name=name)
