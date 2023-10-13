@@ -70,7 +70,7 @@ class Network(Model):
 
     @property
     def possibleConfigKeysForOVN(self):
-        return ["network", "ipv4.address", "ipv4.dhcp", "ipv4.l3only", "ipv4.nat", "ipv4.nat.address", "ipv6.address", "ipv6.dhcp", "ipv6.dhcp.stateful", "ipv6.l3only", "ipv6.nat", "ipv6.nat.address"]]
+        return ["network", "ipv4.address", "ipv4.dhcp", "ipv4.l3only", "ipv4.nat", "ipv4.nat.address", "ipv6.address", "ipv6.dhcp", "ipv6.dhcp.stateful", "ipv6.l3only", "ipv6.nat", "ipv6.nat.address"]
 
     def get(self, name: str):
         network = self._fetch(name=name)
@@ -80,21 +80,21 @@ class Network(Model):
 
         return network
 
-    def create(self, name: str, type: str, *, description: str=None, config: dict=None):
+    def create(self, name: str, _type: str, *, description: str=None, config: dict=None):
         self.validateObjectFormat(name)
 
         self.attributes["name"] = name
 
-        if(not type in self.possibleNetworkTypes):
+        if(not _type in self.possibleNetworkTypes):
             raise InvalidNetworkTypeException(self.possibleNetworkTypes)
 
         if(config):
             # Expect to receive {"key":"value"}
             for k, v in config.items():
-                if(type == "bridge"):
+                if(_type == "bridge"):
                     if(not k in self.possibleConfigKeysForBridge):
                         raise InvalidNetworkConfigurationKeyException(allowed=self.possibleConfigKeysForBridge, key=k)
-                elif(type == "ovn"):
+                elif(_type == "ovn"):
                     if(not k in self.possibleConfigKeysForOVN):
                         raise InvalidNetworkConfigurationKeyException(allowed=self.possibleConfigKeysForOVN, key=k)
                 else:
@@ -102,7 +102,7 @@ class Network(Model):
 
             config = ' '.join([f"{k}={v}" for k,v in config.items()])
 
-        result = self.lxd.run(cmd=f"lxc network create --project='{self.project.name}' '{self.remote.name}':'{self.name}' --type={type} {config if config else ''}")
+        result = self.lxd.run(cmd=f"lxc network create --project='{self.project.name}' '{self.remote.name}':'{self.name}' --type={_type} {config if config else ''}")
 
         if(result["error"]):
             if("The network already exists" in result["data"]):
