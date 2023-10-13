@@ -74,11 +74,11 @@ class Network(Model):
 
     @property
     def possibleConfigKeysForBridge(self):
-        return ["ipv4.address","ipv4.dhcp","ipv4.dhcp.expiry","ipv4.dhcp.gateway","ipv4.dhcp.ranges","ipv4.firewall","ipv4.nat","ipv4.nat.address","ipv4.nat.order","ipv4.ovn.ranges","ipv4.routes","ipv4.routing","ipv6.address","ipv6.dhcp","ipv6.dhcp.expiry","ipv6.dhcp.ranges","ipv6.dhcp.stateful","ipv6.firewall","ipv6.nat","ipv6.nat.address","ipv6.nat.order","ipv6.ovn.ranges","ipv6.routes","ipv6.routing"]
+        return ["bridge.driver", "bridge.hwaddr", "bridge.mode", "bridge.mtu", "dns.domain", "dns.mode", "dns.search", "dns.zone.forward", "dns.zone.reverse.ipv4", "dns.zone.reverse.ipv6", "fan.type", "ipv4.address", "ipv4.dhcp", "ipv4.dhcp.expiry", "ipv4.dhcp.gateway", "ipv4.dhcp.ranges", "ipv4.firewall", "ipv4.nat", "ipv4.nat.address", "ipv4.nat.order", "ipv4.ovn.ranges", "ipv4.routes", "ipv4.routing", "ipv6.address", "ipv6.dhcp", "ipv6.dhcp.expiry", "ipv6.dhcp.ranges", "ipv6.dhcp.stateful", "ipv6.firewall", "ipv6.nat", "ipv6.nat.address", "ipv6.nat.order", "ipv6.ovn.ranges", "ipv6.routes", "ipv6.routing", "maas.subnet.ipv4", "maas.subnet.ipv6", "raw.dnsmasq", "security.acls", "security.acls.default.egress.action", "security.acls.default.egress.logged", "security.acls.default.ingress.action", "security.acls.default.ingress.logged"]
 
     @property
     def possibleConfigKeysForOVN(self):
-        return ["network", "ipv4.address", "ipv4.dhcp", "ipv4.l3only", "ipv4.nat", "ipv4.nat.address", "ipv6.address", "ipv6.dhcp", "ipv6.dhcp.stateful", "ipv6.l3only", "ipv6.nat", "ipv6.nat.address"]
+        return ["bridge.hwaddr", "bridge.mtu", "dns.domain", "dns.search", "dns.zone.forward", "dns.zone.reverse.ipv4", "dns.zone.reverse.ipv6", "ipv4.address", "ipv4.dhcp", "ipv4.l3only", "ipv4.nat", "ipv4.nat.address", "ipv6.address", "ipv6.dhcp", "ipv6.dhcp.stateful", "ipv6.l3only", "ipv6.nat", "ipv6.nat.address", "security.acls", "security.acls.default.egress.action", "security.acls.default.egress.logged", "security.acls.default.ingress.action", "security.acls.default.ingress.logged"]
 
     def get(self, name: str):
         network = self._fetch(name=name)
