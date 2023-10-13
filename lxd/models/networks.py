@@ -162,6 +162,10 @@ class Network(Model):
         if(config):
             # Expect to receive {"key":"value"}
             for k, v in config.items():
+                if(k.startswith("volatile")):
+                    del config[k]
+                    continue
+                    
                 if(self.type == "bridge"):
                     if(not k in self.possibleConfigKeysForBridge):
                         raise InvalidNetworkConfigurationKeyException(allowed=self.possibleConfigKeysForBridge, key=k)
