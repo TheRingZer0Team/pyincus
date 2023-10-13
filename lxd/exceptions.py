@@ -144,6 +144,18 @@ class NetworkAlreadyExistsException(NetworkException, ObjectAlreadyExistsExcepti
     def __init__(self, name: str=None):
         super().__init__(msg=f"Network {f'{chr(34)}{name}{chr(34)} ' if name else ''}already exists.")
 
+class NetworkInUseException(NetworkException):
+    def __init__(self, name: str=None):
+        super().__init__(msg=f"Network {f'{chr(34)}{name}{chr(34)} ' if name else ''}in use.")
+
+class InvalidNetworkTypeException(NetworkException):
+    def __init__(self, allowed):
+        super().__init__(msg=f"Type must be present and must be one of the following: {allowed}")
+
+class InvalidNetworkConfigurationKeyException(NetworkException):
+    def __init__(self, allowed, key=None):
+        super().__init__(msg=f"Key {f'{chr(34)}{key}{chr(34)} ' if key else ''} must be one of the following: {allowed}")
+
 ##########################
 # Network ACL Exceptions #
 ##########################

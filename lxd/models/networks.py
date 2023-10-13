@@ -5,7 +5,12 @@ from ._models import Model
 from .forwards import NetworkForward
 
 from lxd.exceptions import  NetworkException,\
-                            NetworkNotFoundException
+                            NetworkNotFoundException,\
+                            NetworkAlreadyExistsException,\
+                            NetworkInUseException,\
+                            InvalidNetworkTypeException,\
+                            InvalidNetworkConfigurationKeyException,\
+                            InvalidDescriptionException
 
 class Network(Model):
     def __init__(self, parent: Model=None, name: str=None, **kwargs):
@@ -81,19 +86,19 @@ class Network(Model):
         self.attributes["name"] = name
 
         if(not type in self.possibleNetworkTypes):
-            raise NetworkException()
+            raise InvalidNetworkTypeException(self.possibleNetworkTypes)
 
         if(config):
             # Expect to receive {"key":"value"}
             for k, v in config.items():
                 if(type == "bridge"):
                     if(not k in self.possibleConfigKeysForBridge):
-                        raise NetworkException()
+                        raise InvalidNetworkConfigurationKeyException(allowed=self.possibleConfigKeysForBridge, key=k)
                 elif(type == "ovn"):
                     if(not k in self.possibleConfigKeysForOVN):
-                        raise NetworkException()
+                        raise InvalidNetworkConfigurationKeyException(allowed=self.possibleConfigKeysForOVN, key=k)
                 else:
-                    raise NetworkException()
+                    raise InvalidNetworkTypeException(self.possibleNetworkTypes)
 
             config = ' '.join([f"{k}={v}" for k,v in config.items()])
 
@@ -151,12 +156,12 @@ class Network(Model):
             for k, v in config.items():
                 if(self.type == "bridge"):
                     if(not k in self.possibleConfigKeysForBridge):
-                        raise NetworkException()
+                        raise InvalidNetworkConfigurationKeyException(allowed=self.possibleConfigKeysForBridge, key=k)
                 elif(self.type == "ovn"):
                     if(not k in self.possibleConfigKeysForOVN):
-                        raise NetworkException()
+                        raise InvalidNetworkConfigurationKeyException(allowed=self.possibleConfigKeysForOVN, key=k)
                 else:
-                    raise NetworkException()
+                    raise InvalidNetworkTypeException(self.possibleNetworkTypes)
 
             self.attributes["config"] = config
 
