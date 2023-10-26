@@ -59,4 +59,4 @@ class Incus(object):
             raise IncusVersionException(libVersion=INCUS_VERSION, clientVersion=float(result["data"]))
 
 incus = Incus()
-remotes = pyincus.remotes
+remotes = incus.remotes
