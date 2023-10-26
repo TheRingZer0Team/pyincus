@@ -20,6 +20,7 @@ class Incus(object):
     def cwd(self, value):
         self.__cwd = value
 
+    @property
     def binaryPath(self):
         return self.__binaryPath
 
