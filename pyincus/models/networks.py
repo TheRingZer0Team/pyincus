@@ -4,20 +4,20 @@ import yaml
 from ._models import Model
 from .forwards import NetworkForward
 
-from lxd.exceptions import  NetworkException,\
-                            NetworkNotFoundException,\
-                            NetworkAlreadyExistsException,\
-                            NetworkInUseException,\
-                            InvalidNetworkTypeException,\
-                            InvalidNetworkConfigurationKeyException,\
-                            InvalidDescriptionException
+from pyincus.exceptions import  NetworkException,\
+                                NetworkNotFoundException,\
+                                NetworkAlreadyExistsException,\
+                                NetworkInUseException,\
+                                InvalidNetworkTypeException,\
+                                InvalidNetworkConfigurationKeyException,\
+                                InvalidDescriptionException
 
 class Network(Model):
     def __init__(self, parent: Model=None, name: str=None, **kwargs):
         super().__init__(parent=parent, name=name, **kwargs)
 
     @property
-    def lxd(self):
+    def incus(self):
         return self.remote.parent
 
     @property
@@ -110,7 +110,7 @@ class Network(Model):
 
             config = ' '.join([f"{k}={v}" for k,v in config.items()])
 
-        result = self.lxd.run(cmd=f"lxc network create --project='{self.project.name}' '{self.remote.name}':'{self.name}' --type={_type} {config if config else ''}")
+        result = self.incus.run(cmd=f"{self.incus.binaryPath} network create --project='{self.project.name}' '{self.remote.name}':'{self.name}' --type={_type} {config if config else ''}")
 
         if(result["error"]):
             if("The network already exists" in result["data"]):
@@ -127,7 +127,7 @@ class Network(Model):
         return self.get(name=name)
 
     def delete(self):
-        result = self.lxd.run(cmd=f"lxc network delete --project='{self.project.name}' '{self.remote.name}':'{self.name}'")
+        result = self.incus.run(cmd=f"{self.incus.binaryPath} network delete --project='{self.project.name}' '{self.remote.name}':'{self.name}'")
 
         if(result["error"]):
             if('Network not found' in result["data"]):
@@ -140,7 +140,7 @@ class Network(Model):
     def rename(self, name: str):
         self.validateObjectFormat(name)
 
-        result = self.lxd.run(cmd=f"lxc network rename --project='{self.project.name}' '{self.remote.name}':'{self.name}' '{name}'")
+        result = self.incus.run(cmd=f"{self.incus.binaryPath} network rename --project='{self.project.name}' '{self.remote.name}':'{self.name}' '{name}'")
 
         if(result["error"]):
             if("A Network by that name exists already" in result["data"]):
@@ -179,7 +179,7 @@ class Network(Model):
 
             self.attributes["config"] = config
 
-        result = self.lxd.run(cmd=f"lxc network edit --project='{self.project.name}' '{self.remote.name}':'{self.name}'", input=yaml.safe_dump(self.attributes))
+        result = self.incus.run(cmd=f"{self.incus.binaryPath} network edit --project='{self.project.name}' '{self.remote.name}':'{self.name}'", input=yaml.safe_dump(self.attributes))
 
         if(result["error"]):
             if("Error: yaml: unmarshal errors:" in result["data"]):

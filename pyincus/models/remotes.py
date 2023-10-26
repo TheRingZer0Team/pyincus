@@ -2,17 +2,17 @@
 from ._models import Model
 from .projects import Project
 
-from lxd.exceptions import  RemoteException,\
-                            RemoteNotFoundException,\
-                            RemoteAlreadyExistsException,\
-                            RemoteLocalCannotBeModifiedException
+from pyincus.exceptions import  RemoteException,\
+                                RemoteNotFoundException,\
+                                RemoteAlreadyExistsException,\
+                                RemoteLocalCannotBeModifiedException
 
 class Remote(Model):
     def __init__(self, parent: Model=None, name: str=None, **kwargs):
         super().__init__(parent=parent, name=name, **kwargs)
 
     @property
-    def lxd(self):
+    def incus(self):
         return self.parent
 
     @property
@@ -53,7 +53,7 @@ class Remote(Model):
     def rename(self, name: str):
         self.validateObjectFormat(name)
 
-        result = self.lxd.run(cmd=f"lxc remote rename '{self.name}' '{name}'")
+        result = self.incus.run(cmd=f"{self.incus.binaryPath} remote rename '{self.name}' '{name}'")
 
         if(result["error"]):
             if("Remote local is static and cannot be modified" in result["data"]):

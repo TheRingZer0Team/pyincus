@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
 import subprocess
 
-from .exceptions import LXDException,\
-                        LXDVersionException
+from .exceptions import IncusException,\
+                        IncusVersionException
 from .models.remotes import Remote
 
-LXD_VERSION = 5.18
+INCUS_VERSION = 0.1
 
-class LXD(object):
-    def __init__(self, cwd=None):
+class Incus(object):
+    def __init__(self, cwd=None, binaryPath='/usr/bin/incus'):
         self.__cwd = cwd
+        self.__binaryPath = binaryPath
 
     @property
     def cwd(self):
@@ -18,6 +19,13 @@ class LXD(object):
     @cwd.setter
     def cwd(self, value):
         self.__cwd = value
+
+    def binaryPath(self):
+        return self.__binaryPath
+
+    @binaryPath.setter
+    def binaryPath(self, value):
+        self.__binaryPath = value
 
     @property
     def remotes(self):
@@ -41,13 +49,13 @@ class LXD(object):
         return {"data":result, "error":error}
 
     def check(self):
-        result = self.run(cmd="lxc --version")
+        result = self.run(cmd=f"{self.binaryPath} --version")
         
         if(result["error"]):
-            raise LXDException(f"Unexpected error: {result['error']}")
+            raise IncusException(f"Unexpected error: {result['error']}")
 
-        if(LXD_VERSION != float(result["data"])):
-            raise LXDVersionException(libVersion=LXD_VERSION, clientVersion=float(result["data"]))
+        if(INCUS_VERSION != float(result["data"])):
+            raise IncusVersionException(libVersion=INCUS_VERSION, clientVersion=float(result["data"]))
 
-lxd = LXD()
-remotes = lxd.remotes
+incus = Incus()
+remotes = pyincus.remotes

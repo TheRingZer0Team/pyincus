@@ -4,39 +4,39 @@
 # Generic Exceptions #
 ######################
 
-class LXDException(Exception):
+class IncusException(Exception):
     def __init__(self, msg: str):
         super().__init__(msg)
 
-class LXDVersionException(LXDException):
+class IncusVersionException(IncusException):
     def __init__(self, libVersion, clientVersion):
         super().__init__(msg=f"The library uses \"{libVersion}\" and you have \"{clientVersion}\" installed. Please match the versions.")
 
-class ObjectNotFoundException(LXDException):
+class ObjectNotFoundException(IncusException):
     def __init__(self, msg="Object not found."):
         super().__init__(msg=msg)
 
-class ObjectAlreadyExistsException(LXDException):
+class ObjectAlreadyExistsException(IncusException):
     def __init__(self, msg="Object already exists."):
         super().__init__(msg=msg)
 
-class NameAlreadyInUseException(LXDException):
+class NameAlreadyInUseException(IncusException):
     def __init__(self, name: str):
         super().__init__(msg=f"Name {name} already in use.")
 
-class InvalidLXDObjectNameFormatException(LXDException):
+class InvalidIncusObjectNameFormatException(IncusException):
     def __init__(self, name: str):
-        super().__init__(msg=f"The LXD object name is not the correct length or format. It has to be 1 to 63 characters long, contains only letters, numbers and dashes, must not start with a digit or dash, and must not end with a dash: {name}")
+        super().__init__(msg=f"The incus object name is not the correct length or format. It has to be 1 to 63 characters long, contains only letters, numbers and dashes, must not start with a digit or dash, and must not end with a dash: {name}")
 
-class InvalidDescriptionException(LXDException):
+class InvalidDescriptionException(IncusException):
     def __init__(self):
         super().__init__(msg="description must be a string.")
 
-class InvalidImageNameFormatException(LXDException):
+class InvalidImageNameFormatException(IncusException):
     def __init__(self, name: str):
         super().__init__(msg=f"The image name is not the correct length or format. It has to be short hash of 12 hexadecimal, long hash of 64 hexadecimal or a combine of alphanumeric, dash, dot and forward slash of 1 to 64 length: {name}")
 
-class InvalidIPAddressException(LXDException):
+class InvalidIPAddressException(IncusException):
     def __init__(self, ipAddress: str):
         super().__init__(msg=f"IP address {f'{chr(34)}{ipAddress}{chr(34)} ' if ipAddress else ''}is not a valid IPv4 or IPv6.")
 
@@ -48,7 +48,7 @@ class DeviceNotFoundException(ObjectNotFoundException):
 # Remote Exceptions #
 #####################
 
-class RemoteException(LXDException):
+class RemoteException(IncusException):
     def __init__(self, msg: str):
         super().__init__(msg=msg)
 
@@ -68,7 +68,7 @@ class RemoteLocalCannotBeModifiedException(RemoteException):
 # Project Exceptions #
 ######################
 
-class ProjectException(LXDException):
+class ProjectException(IncusException):
     def __init__(self, msg: str):
         super().__init__(msg=msg)
 
@@ -92,7 +92,7 @@ class ProjectIsInUseException(ProjectException):
 # Instance Exceptions #
 #######################
 
-class InstanceException(LXDException):
+class InstanceException(IncusException):
     def __init__(self, msg: str):
         super().__init__(msg=msg)
 
@@ -132,7 +132,7 @@ class InstanceExecFailedException(InstanceException):
 # Network Exceptions #
 ######################
 
-class NetworkException(LXDException):
+class NetworkException(IncusException):
     def __init__(self, msg: str):
         super().__init__(msg=msg)
 
@@ -160,7 +160,7 @@ class InvalidNetworkConfigurationKeyException(NetworkException):
 # Network ACL Exceptions #
 ##########################
 
-class NetworkACLException(LXDException):
+class NetworkACLException(IncusException):
     def __init__(self, msg: str):
         super().__init__(msg=msg)
 
@@ -204,7 +204,7 @@ class MissingProtocolException(NetworkACLException):
 # Network Forward Exceptions #
 ##############################
 
-class NetworkForwardException(LXDException):
+class NetworkForwardException(IncusException):
     def __init__(self, msg: str):
         super().__init__(msg=msg)
 

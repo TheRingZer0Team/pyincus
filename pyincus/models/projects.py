@@ -4,18 +4,18 @@ from .acls import NetworkACL
 from .instances import Instance
 from .networks import Network
 
-from lxd.exceptions import  ProjectException,\
-                            ProjectNotFoundException,\
-                            ProjectAlreadyExistsException,\
-                            ProjectDefaultCannotBeRenamedException,\
-                            ProjectIsInUseException
+from pyincus.exceptions import  ProjectException,\
+                                ProjectNotFoundException,\
+                                ProjectAlreadyExistsException,\
+                                ProjectDefaultCannotBeRenamedException,\
+                                ProjectIsInUseException
 
 class Project(Model):
     def __init__(self, parent: Model=None, name: str=None, **kwargs):
         super().__init__(parent=parent, name=name, **kwargs)
 
     @property
-    def lxd(self):
+    def incus(self):
         return self.remote.parent
 
     @property
@@ -57,7 +57,7 @@ class Project(Model):
     def rename(self, name: str):
         self.validateObjectFormat(name)
 
-        result = self.lxd.run(cmd=f"lxc project rename '{self.remote.name}':'{self.name}' '{name}'")
+        result = self.incus.run(cmd=f"{self.incus.binaryPath} project rename '{self.remote.name}':'{self.name}' '{name}'")
 
         if(result["error"]):
             if("The 'default' project cannot be renamed" in result["data"]):

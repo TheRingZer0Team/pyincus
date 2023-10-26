@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 import yaml
 
-from lxd.exceptions import  LXDException,\
-                            InvalidLXDObjectNameFormatException
-from lxd.utils import REGEX_LXD_OBJECT_NAME
+from pyincus.exceptions import  IncusException,\
+                                InvalidIncusObjectNameFormatException
+from pyincus.utils import REGEX_INCUS_OBJECT_NAME
 
 class Model(object):
     def __init__(self, **kwargs):
@@ -38,27 +38,27 @@ class Model(object):
         cmd = None
         
         if(self.__class__.__name__ == "Remote"):
-            cmd = "lxc remote list -fyaml"
+            cmd = f"{self.incus.binaryPath} remote list -fyaml"
         
         if(self.__class__.__name__ == "Project"):
-            cmd = f"lxc project list -fyaml '{self.remote.name}':"
+            cmd = f"{self.incus.binaryPath} project list -fyaml '{self.remote.name}':"
 
         if(self.__class__.__name__ == "Instance"):
-            cmd = f"lxc list -fyaml --project='{self.project.name}' '{self.remote.name}':'{filter}'"
+            cmd = f"{self.incus.binaryPath} list -fyaml --project='{self.project.name}' '{self.remote.name}':'{filter}'"
         
         if(self.__class__.__name__ == "Network"):
-            cmd = f"lxc network list -fyaml --project='{self.project.name}' '{self.remote.name}':"
+            cmd = f"{self.incus.binaryPath} network list -fyaml --project='{self.project.name}' '{self.remote.name}':"
         
         if(self.__class__.__name__ == "NetworkACL"):
-            cmd = f"lxc network acl list -fyaml --project='{self.project.name}' '{self.remote.name}':"
+            cmd = f"{self.incus.binaryPath} network acl list -fyaml --project='{self.project.name}' '{self.remote.name}':"
         
         if(self.__class__.__name__ == "NetworkForward"):
-            cmd = f"lxc network forward list -fyaml --project='{self.project.name}' '{self.remote.name}':'{filter}'"
+            cmd = f"{self.incus.binaryPath} network forward list -fyaml --project='{self.project.name}' '{self.remote.name}':'{filter}'"
 
-        result = self.lxd.run(cmd=cmd, **kwargs)
+        result = self.incus.run(cmd=cmd, **kwargs)
 
         if(result["error"]):
-            raise LXDException(result["data"])
+            raise IncusException(result["data"])
 
         results = yaml.safe_load(result["data"])
 
@@ -89,19 +89,19 @@ class Model(object):
         cmd = None
         
         if(self.__class__.__name__ == "Project"):
-            cmd = f"lxc project show '{self.remote.name}':'{name}'"
+            cmd = f"{self.incus.binaryPath} project show '{self.remote.name}':'{name}'"
         
         if(self.__class__.__name__ == "Network"):
-            cmd = f"lxc network show --project='{self.project.name}' '{self.remote.name}':'{name}'"
+            cmd = f"{self.incus.binaryPath} network show --project='{self.project.name}' '{self.remote.name}':'{name}'"
         
         if(self.__class__.__name__ == "NetworkACL"):
-            cmd = f"lxc network acl show --project='{self.project.name}' '{self.remote.name}':'{name}'"
+            cmd = f"{self.incus.binaryPath} network acl show --project='{self.project.name}' '{self.remote.name}':'{name}'"
         
         if(self.__class__.__name__ == "NetworkForward"):
-            cmd = f"lxc network forward show --project='{self.project.name}' '{self.remote.name}':'{name}' '{kwargs['listenAddress']}'"
+            cmd = f"{self.incus.binaryPath} network forward show --project='{self.project.name}' '{self.remote.name}':'{name}' '{kwargs['listenAddress']}'"
             del kwargs["listenAddress"]
 
-        result = self.lxd.run(cmd=cmd, **kwargs)
+        result = self.incus.run(cmd=cmd, **kwargs)
 
         if(result["error"]):
             return result["data"]
@@ -116,8 +116,8 @@ class Model(object):
 
     def validateObjectFormat(self, *args):
         for arg in args:
-            if(arg and (not isinstance(arg, str) or not REGEX_LXD_OBJECT_NAME.match(arg))):
-                raise InvalidLXDObjectNameFormatException(arg)
+            if(arg and (not isinstance(arg, str) or not REGEX_INCUS_OBJECT_NAME.match(arg))):
+                raise InvalidIncusObjectNameFormatException(arg)
 
     def __str__(self):
         return f"{self.__class__.__name__} (name={self.name})"

@@ -4,16 +4,16 @@ import ipaddress
 
 from ._models import Model
 
-from lxd.exceptions import  NetworkForwardException,\
-                            NetworkForwardNotFoundException,\
-                            InvalidIPAddressException,\
-                            InvalidPortProtocolException,\
-                            InvalidPortRangeException,\
-                            DuplicatePortException,\
-                            StartLowerThanEndException,\
-                            InvalidTargetPortsException,\
-                            NetworkForwardPortNotFoundException,\
-                            NetworkForwardPortAlreadyExistsException
+from pyincus.exceptions import  NetworkForwardException,\
+                                NetworkForwardNotFoundException,\
+                                InvalidIPAddressException,\
+                                InvalidPortProtocolException,\
+                                InvalidPortRangeException,\
+                                DuplicatePortException,\
+                                StartLowerThanEndException,\
+                                InvalidTargetPortsException,\
+                                NetworkForwardPortNotFoundException,\
+                                NetworkForwardPortAlreadyExistsException
 
 REGEX_LIST_OF_PORTS = re.compile(r'^[1-9][0-9]{0,4}(([\-][1-9][0-9]{0,4})?([,][1-9][0-9]{0,4}|$))*$')
 
@@ -22,7 +22,7 @@ class NetworkForward(Model):
         super().__init__(parent=parent, name=name, **kwargs)
 
     @property
-    def lxd(self):
+    def incus(self):
         return self.remote.parent
 
     @property
@@ -124,7 +124,7 @@ class NetworkForward(Model):
             if(c2 != c1):
                 raise InvalidTargetPortsException(listenPorts=listenPorts, targetPorts=targetPorts)
 
-        result = self.lxd.run(cmd=f"lxc network forward port add --project='{self.project.name}' '{self.remote.name}':'{self.network.name}' '{self.listenAddress}' '{protocol}' '{listenPorts}' '{targetAddress}'{f' {chr(39)}{targetPorts}{chr(39)} ' if targetPorts else ''}")
+        result = self.incus.run(cmd=f"{self.incus.binaryPath} network forward port add --project='{self.project.name}' '{self.remote.name}':'{self.network.name}' '{self.listenAddress}' '{protocol}' '{listenPorts}' '{targetAddress}'{f' {chr(39)}{targetPorts}{chr(39)} ' if targetPorts else ''}")
 
         if(result["error"]):
             if("Duplicate listen port " in result["data"] and f"for protocol \"{protocol}\" in port specification" in result["data"]):
@@ -142,7 +142,7 @@ class NetworkForward(Model):
         if(not listenPorts is None):
             self.validatePortList(ports=listenPorts)
 
-        result = self.lxd.run(cmd=f"lxc network forward port remove --project='{self.project.name}' '{self.remote.name}':'{self.network.name}' '{self.listenAddress}' '{protocol}' '{listenPorts}'")
+        result = self.incus.run(cmd=f"{self.incus.binaryPath} network forward port remove --project='{self.project.name}' '{self.remote.name}':'{self.network.name}' '{self.listenAddress}' '{protocol}' '{listenPorts}'")
 
         if(result["error"]):
             if("No matching port(s) found" in result["data"]):
@@ -183,7 +183,7 @@ class NetworkForward(Model):
 
             self.attributes["description"] = description
         
-        result = self.lxd.run(cmd=f"lxc network forward edit --project='{self.project.name}' '{self.remote.name}':'{self.network.name}' '{self.listenAddress}'", input=yaml.safe_dump(self.attributes))
+        result = self.incus.run(cmd=f"{self.incus.binaryPath} network forward edit --project='{self.project.name}' '{self.remote.name}':'{self.network.name}' '{self.listenAddress}'", input=yaml.safe_dump(self.attributes))
 
         if(result["error"]):
             if("Error: yaml: unmarshal errors:" in result["data"]):

@@ -2,33 +2,33 @@
 import yaml
 import textwrap
 
-from lxd.utils import REGEX_DEVICE_NOT_FOUND,\
-                      REGEX_IMAGE_NAME, \
-                      REGEX_NETWORK_NOT_FOUND_COPY
+from pyincus.utils import   REGEX_DEVICE_NOT_FOUND,\
+                            REGEX_IMAGE_NAME, \
+                            REGEX_NETWORK_NOT_FOUND_COPY
 
 from ._models import Model
 
-from lxd.exceptions import  DeviceNotFoundException,\
-                            InstanceAlreadyExistsException,\
-                            InstanceException,\
-                            InstanceExecFailedException,\
-                            InstanceIsAlreadyStoppedException,\
-                            InstanceIsNotRunningException,\
-                            InstanceIsPausedException,\
-                            InstanceIsRunningException,\
-                            InstanceNotFoundException,\
-                            InstanceTimeoutExceededException,\
-                            InvalidDescriptionException,\
-                            InvalidImageNameFormatException,\
-                            NameAlreadyInUseException,\
-                            NetworkNotFoundException
+from pyincus.exceptions import  DeviceNotFoundException,\
+                                InstanceAlreadyExistsException,\
+                                InstanceException,\
+                                InstanceExecFailedException,\
+                                InstanceIsAlreadyStoppedException,\
+                                InstanceIsNotRunningException,\
+                                InstanceIsPausedException,\
+                                InstanceIsRunningException,\
+                                InstanceNotFoundException,\
+                                InstanceTimeoutExceededException,\
+                                InvalidDescriptionException,\
+                                InvalidImageNameFormatException,\
+                                NameAlreadyInUseException,\
+                                NetworkNotFoundException
 
 class Instance(Model):
     def __init__(self, parent: Model=None, name: str=None, **kwargs):
         super().__init__(parent=parent, name=name, **kwargs)
 
     @property
-    def lxd(self):
+    def incus(self):
         return self.remote.parent
 
     @property
@@ -181,10 +181,10 @@ class Instance(Model):
         if(projectDestination is None):
             projectDestination = self.project.name
 
-        result = self.lxd.run(cmd=
+        result = self.incus.run(cmd=
             textwrap.dedent(
                 f"""\
-                    lxc copy 
+                    {self.incus.binaryPath} copy 
                     {f"'{remoteSource}':" if remoteSource else ""}'{source}'{f"/'{snapshotName}'" if snapshotName else ""} 
                     {f"'{remoteDestination}':" if remoteDestination else ""}'{name}' 
                     {f"--project='{projectSource}' " if projectSource else ""} 
@@ -221,7 +221,7 @@ class Instance(Model):
         return Instance(parent=self.parent, name=name)
 
     def delete(self, *, force: bool=True):
-        result = self.lxd.run(cmd=f"lxc delete {'--force ' if force else ''}--project='{self.project.name}' '{self.remote.name}':'{self.name}'")
+        result = self.incus.run(cmd=f"{self.incus.binaryPath} delete {'--force ' if force else ''}--project='{self.project.name}' '{self.remote.name}':'{self.name}'")
 
         if(result["error"]):
             if('Instance not found' in result["data"]):
@@ -231,7 +231,7 @@ class Instance(Model):
 
     def exec(self, cmd: str):
         cmd = cmd.replace("'","'\"'\"'")
-        result = self.lxd.run(cmd=f"lxc exec --project='{self.project.name}' '{self.remote.name}':'{self.name}' -- bash -c '{cmd}'")
+        result = self.incus.run(cmd=f"{self.incus.binaryPath} exec --project='{self.project.name}' '{self.remote.name}':'{self.name}' -- bash -c '{cmd}'")
 
         if(result["error"]):
             if('Instance not found' in result["data"]):
@@ -262,10 +262,10 @@ class Instance(Model):
             for n, values in device.items():
                 device = ' '.join([f"-d {n},{k}={v}" for k,v in values.items()])
 
-        result = self.lxd.run(cmd=
+        result = self.incus.run(cmd=
             textwrap.dedent(
                 f"""\
-                    lxc init 
+                    {self.incus.binaryPath} init 
                     {f"'{remoteSource}':" if remoteSource else ""}'{image}' 
                     '{self.remote.name}':'{name}' 
                     --project='{self.project.name}' 
@@ -301,10 +301,10 @@ class Instance(Model):
             for n, values in device.items():
                 device = ' '.join([f"-d {n},{k}={v}" for k,v in values.items()])
 
-        result = self.lxd.run(cmd=
+        result = self.incus.run(cmd=
             textwrap.dedent(
                 f"""\
-                    lxc launch 
+                    {self.incus.binaryPath} launch 
                     {f"'{remoteSource}':" if remoteSource else ""}'{image}' 
                     '{self.remote.name}':'{name}' 
                     --project='{self.project.name}' 
@@ -328,7 +328,7 @@ class Instance(Model):
         return Instance(parent=self.parent, name=name)
 
     def pause(self, timeout: int=None):
-        result = self.lxd.run(cmd=f"lxc pause --project='{self.project.name}' '{self.remote.name}':'{self.name}'", timeout=timeout)
+        result = self.incus.run(cmd=f"{self.incus.binaryPath} pause --project='{self.project.name}' '{self.remote.name}':'{self.name}'", timeout=timeout)
 
         if(result["error"]):
             if("Error: The instance isn't running" == result["data"]):
@@ -338,7 +338,7 @@ class Instance(Model):
     def rename(self, name: str):
         self.validateObjectFormat(name)
 
-        result = self.lxd.run(cmd=f"lxc rename --project='{self.project.name}' '{self.remote.name}':'{self.name}' '{name}'")
+        result = self.incus.run(cmd=f"{self.incus.binaryPath} rename --project='{self.project.name}' '{self.remote.name}':'{self.name}' '{name}'")
 
         if(result["error"]):
             if(result["data"].startswith("Error: Name \"") and result["data"].endswith("\" already in use")):
@@ -349,7 +349,7 @@ class Instance(Model):
         self.attributes["name"] = name
 
     def restart(self, *, force: bool=True, timeout: int=-1):
-        result = self.lxd.run(cmd=f"lxc restart {'--force ' if force else ''}--timeout={timeout} --project='{self.project.name}' '{self.remote.name}':'{self.name}'")
+        result = self.incus.run(cmd=f"{self.incus.binaryPath} restart {'--force ' if force else ''}--timeout={timeout} --project='{self.project.name}' '{self.remote.name}':'{self.name}'")
 
         if(result["error"]):
             if("Error: The instance is already stopped" == result["data"]):
@@ -361,19 +361,19 @@ class Instance(Model):
     def restore(self, name: str, *, stateful: bool=False):
         self.validateObjectFormat(name)
 
-        result = self.lxd.run(cmd=f"lxc restore {'--stateful ' if stateful else ''}--project='{self.project.name}' '{self.remote.name}':'{self.name}' {name}")
+        result = self.incus.run(cmd=f"{self.incus.binaryPath} restore {'--stateful ' if stateful else ''}--project='{self.project.name}' '{self.remote.name}':'{self.name}' {name}")
 
         if(result["error"]):
             raise InstanceException(result["data"])
 
     def start(self):
-        result = self.lxd.run(cmd=f"lxc start --project='{self.project.name}' '{self.remote.name}':'{self.name}'")
+        result = self.incus.run(cmd=f"{self.incus.binaryPath} start --project='{self.project.name}' '{self.remote.name}':'{self.name}'")
 
         if(result["error"]):
             raise InstanceException(result["data"])
 
     def stop(self, *, force: bool=True, timeout: int=-1):
-        result = self.lxd.run(cmd=f"lxc stop {'--force ' if force else ''}--timeout={timeout} --project='{self.project.name}' '{self.remote.name}':'{self.name}'")
+        result = self.incus.run(cmd=f"{self.incus.binaryPath} stop {'--force ' if force else ''}--timeout={timeout} --project='{self.project.name}' '{self.remote.name}':'{self.name}'")
 
         if(result["error"]):
             if("Error: The instance is already stopped" == result["data"]):
@@ -387,7 +387,7 @@ class Instance(Model):
     def snapshot(self, name: str, *, reuse: bool=False, stateful: bool=False):
         self.validateObjectFormat(name)
 
-        result = self.lxd.run(cmd=f"lxc snapshot {'--reuse ' if reuse else ''}{'--stateful ' if stateful else ''}--project='{self.project.name}' '{self.remote.name}':'{self.name}' {name}")
+        result = self.incus.run(cmd=f"{self.incus.binaryPath} snapshot {'--reuse ' if reuse else ''}{'--stateful ' if stateful else ''}--project='{self.project.name}' '{self.remote.name}':'{self.name}' {name}")
 
         if(result["error"]):
             raise InstanceException(result["data"])
@@ -436,7 +436,7 @@ class Instance(Model):
 
             self.validateObjectFormat(*profiles)
 
-        result = self.lxd.run(cmd=f"lxc config edit --project='{self.project.name}' '{self.remote.name}':'{self.name}'", input=yaml.safe_dump(self.attributes))
+        result = self.incus.run(cmd=f"{self.incus.binaryPath} config edit --project='{self.project.name}' '{self.remote.name}':'{self.name}'", input=yaml.safe_dump(self.attributes))
 
         if(result["error"]):
             if("Error: yaml: unmarshal errors:" in result["data"]):

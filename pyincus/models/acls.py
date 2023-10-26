@@ -3,24 +3,24 @@ import yaml
 
 from ._models import Model
 
-from lxd.exceptions import  NetworkACLException,\
-                            NetworkACLAlreadyExistsException,\
-                            NetworkACLNotFoundException,\
-                            NetworkACLInUseException,\
-                            InvalidACLGressException,\
-                            InvalidACLRuleActionException,\
-                            InvalidACLRuleKeyException,\
-                            InvalidACLRuleProtocolException,\
-                            InvalidACLRuleStateException,\
-                            InvalidDescriptionException,\
-                            MissingProtocolException
+from pyincus.exceptions import  NetworkACLException,\
+                                NetworkACLAlreadyExistsException,\
+                                NetworkACLNotFoundException,\
+                                NetworkACLInUseException,\
+                                InvalidACLGressException,\
+                                InvalidACLRuleActionException,\
+                                InvalidACLRuleKeyException,\
+                                InvalidACLRuleProtocolException,\
+                                InvalidACLRuleStateException,\
+                                InvalidDescriptionException,\
+                                MissingProtocolException
 
 class NetworkACL(Model):
     def __init__(self, parent: Model=None, name: str=None, **kwargs):
         super().__init__(parent=parent, name=name, **kwargs)
 
     @property
-    def lxd(self):
+    def incus(self):
         return self.remote.parent
 
     @property
@@ -124,7 +124,7 @@ class NetworkACL(Model):
 
         self.attributes["name"] = name
 
-        result = self.lxd.run(cmd=f"lxc network acl create --project='{self.project.name}' '{self.remote.name}':'{self.name}'")
+        result = self.incus.run(cmd=f"{self.incus.binaryPath} network acl create --project='{self.project.name}' '{self.remote.name}':'{self.name}'")
 
         if(result["error"]):
             if("The network ACL already exists" in result["data"]):
@@ -141,7 +141,7 @@ class NetworkACL(Model):
         return self.get(name=name)
 
     def delete(self):
-        result = self.lxd.run(cmd=f"lxc network acl delete --project='{self.project.name}' '{self.remote.name}':'{self.name}'")
+        result = self.incus.run(cmd=f"{self.incus.binaryPath} network acl delete --project='{self.project.name}' '{self.remote.name}':'{self.name}'")
 
         if(result["error"]):
             if('Network ACL not found' in result["data"]):
@@ -162,7 +162,7 @@ class NetworkACL(Model):
     def rename(self, name: str):
         self.validateObjectFormat(name)
 
-        result = self.lxd.run(cmd=f"lxc network acl rename --project='{self.project.name}' '{self.remote.name}':'{self.name}' '{name}'")
+        result = self.incus.run(cmd=f"{self.incus.binaryPath} network acl rename --project='{self.project.name}' '{self.remote.name}':'{self.name}' '{name}'")
 
         if(result["error"]):
             if("An ACL by that name exists already" in result["data"]):
@@ -187,7 +187,7 @@ class NetworkACL(Model):
         if(not ingress is None):
             self.attributes["ingress"] = self.validateGress(gress=ingress)
 
-        result = self.lxd.run(cmd=f"lxc network acl edit --project='{self.project.name}' '{self.remote.name}':'{self.name}'", input=yaml.safe_dump(self.attributes))
+        result = self.incus.run(cmd=f"{self.incus.binaryPath} network acl edit --project='{self.project.name}' '{self.remote.name}':'{self.name}'", input=yaml.safe_dump(self.attributes))
 
         if(result["error"]):
             if("Error: yaml: unmarshal errors:" in result["data"]):
