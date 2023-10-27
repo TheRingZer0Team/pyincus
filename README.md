@@ -1,20 +1,20 @@
-# python-lxd
+# pyincus
 
 ## Description
 
-This library was written to be able to use LXD with Python. There are some solutions out there but they either lack features or they are limiting in what our projects requires. 
+This library was written to be able to use Incus with Python. There are some solutions out there but they either lack features or they are limiting in what our projects requires. 
 
-The library uses the LXD client installed on your machine to work. Meaning that you need to manually create remotes in your LXD for this library to work. This way, it's possible to use this library for remotes that requires more than just a certificate or a password. 
+The library uses the Incus client installed on your machine to work. Meaning that you need to manually create remotes in your Incus for this library to work. This way, it's possible to use this library for remotes that requires more than just a certificate or a password. 
 
 ## Usage
 
-### LXD
+### Incus
 
-The object `LXD` contains the methods to run commands on the system. It is also there that you can set the variable `cwd` in case you are running your code in a directory where you don't have the permission to write. You can also use the `check()` method to see if the library match the version of LXD.
+The object `Incus` contains the methods to run commands on the system. It is also there that you can set the variable `cwd` in case you are running your code in a directory where you don't have the permission to write. You can also use the `check()` method to see if the library match the version of Incus.
 
 #### Methods
 
-* _check()_ - Check LXD version. Raises `LXDVersionException` if the version does not match.
+* _check()_ - Check Incus version. Raises `IncusVersionException` if the version does not match.
 * _run(cmd: str, \*\*kwargs)_ - Execute `cmd` on the operation system and returns a dictionary `{"data":result, "error":error}`. `kwargs` is passed to `subprocess.run()`.
 
 #### Attributes
@@ -25,10 +25,10 @@ The object `LXD` contains the methods to run commands on the system. It is also 
 #### Examples
 
 ```python
-import lxd
+import pyincus
 
-lxd.lxd.cwd = "/"
-lxd.lxd.check()
+pyincus.incus.cwd = "/"
+pyincus.incus.check()
 ```
 
 ### Model
@@ -43,37 +43,37 @@ Every object following this one inherite from `Model` and therefore can use any 
 
 #### Attributes
 
-* _attributes_ - Contains every variable from LXD object.
-* _name_ - Read only attribute associated to the LXD object.
-* _parent_ - Read only attribute associated to the LXD object.
+* _attributes_ - Contains every variable from Incus object.
+* _name_ - Read only attribute associated to the Incus object.
+* _parent_ - Read only attribute associated to the Incus object.
 
 ### Remote
 
 #### Methods
 
 * _get(name: str)_ - Get a specific `Remote` object.
-* _rename(name: str)_ - Equivalent to `lxc remote rename`
+* _rename(name: str)_ - Equivalent to `incus remote rename`
 
 #### Attributes
 
-* _lxd_ - `LXD` object.
+* _incus_ - `Incus` object.
 * _projects_ - Empty instance of `Project` object to gain access to methods like `list`, `get` and `exists`.
-* _addr_ - Read only attribute associated to the LXD object. Address of the remote object.
-* _project_ - Read only attribute associated to the LXD object. Default project name for the remote.
-* _public_ - Read only attribute associated to the LXD object. If the remote is public or private.
+* _addr_ - Read only attribute associated to the Incus object. Address of the remote object.
+* _project_ - Read only attribute associated to the Incus object. Default project name for the remote.
+* _public_ - Read only attribute associated to the Incus object. If the remote is public or private.
 
 #### Examples
 
 ```python
-import lxd
+import pyincus
 
 # List remotes locally installed on your computer.
-print(lxd.remotes.list())
+print(pyincus.remotes.list())
 
 # Check if the remote exists
-if(lxd.remotes.exists(name="local")):
+if(pyincus.remotes.exists(name="local")):
 	# Fetch the remote
-	remote = lxd.remotes.get(name="local")
+	remote = pyincus.remotes.get(name="local")
 
 	print(remote.name)
 ```
@@ -83,25 +83,25 @@ if(lxd.remotes.exists(name="local")):
 #### Methods
 
 * _get(name: str)_ - Get a specific `Project` object.
-* _rename(name: str)_ - Equivalent to `lxc project rename`
+* _rename(name: str)_ - Equivalent to `incus project rename`
 
 #### Attributes
 
 * _acls_ - 
-* _lxd_ - `LXD` object.
+* _incus_ - `Incus` object.
 * _remote_ - `Remote` object.
 * _instances_ - Empty instance of `Instance` object to gain access to methods like `list`, `get` and `exists`.
 * _networks_ - Empty instance of `Network` object to gain access to methods like `list`, `get` and `exists`.
-* _config_ - Attribute associated to the LXD object. Project configuration.
-* _description_ - Attribute associated to the LXD object. Project description.
-* _usedBy_ - Read only attribute associated to the LXD object. Project used by what other object.
+* _config_ - Attribute associated to the Incus object. Project configuration.
+* _description_ - Attribute associated to the Incus object. Project description.
+* _usedBy_ - Read only attribute associated to the Incus object. Project used by what other object.
 
 #### Examples
 
 ```python
-import lxd
+import pyincus
 
-remote = lxd.remotes.get(name="local")
+remote = pyincus.remotes.get(name="local")
 
 # List projects of a given remote.
 print(remote.projects.list())
@@ -119,51 +119,51 @@ if(remote.projects.exists(name="default")):
 #### Methods
 
 * _get(name: str)_ - Get a specific `Instance` object.
-* _validateImageName(image: str)_ - Used to validate the image name for LXD compatibility.
-* _copy(source: str, name: str=None, *, snapshotName: str=None, remoteSource: str=None, remoteDestination: str=None, projectSource: str=None, projectDestination: str=None, config: dict=None, device: dict=None, profile: str=None, mode: str='pull', storage: str=None, allowInconsistent: bool=False, empty: bool=False, instanceOnly: bool=False, noProfile: bool=False, refresh: bool=False, stateless: bool=False, vm: bool=False)_ -  Equivalent to `lxc copy` command.
-* _delete(force: bool=True)_ - Equivalent to `lxc delete` command.
-* _exec(cmd: str)_ - Equivalent to `lxc exec` command.
-* _init(image: str, name: str, *, remoteSource: str=None, config: dict=None, device: dict=None, profile: str=None, network: str=None, storage: str=None, empty: bool=False, noProfile: bool=False, vm: bool=False)_ - Equivalent to `lxc init` command.
-* _launch(image: str, name: str, *, remoteSource: str=None, config: dict=None, device: dict=None, profile: str=None, network: str=None, storage: str=None, empty: bool=False, noProfile: bool=False, vm: bool=False)_ - Equivalent to `lxc launch` command.
-* _pause()_ - Equivalent to `lxc pause` command.
-* _rename(name: str)_ - Equivalent to `lxc rename` command.
-* _restart(*, force: bool=True, timeout: int=-1)_ - Equivalent to `lxc restart` command.
-* _restore(self, name: str, *, stateful: bool=False)_ - Equivalent to `lxc restore` command.
-* _save(config: dict=None, devices: dict=None, profiles: list=None, description: str=None)_ - Equivalent to `yaml | lxc config edit` command.
-* _snapshot(name: str, *, reuse: bool=False, stateful: bool=False)_ - Equivalent to `lxc snapshot` command.
-* _start()_ - Equivalent to `lxc start` command.
-* _stop(*, force: bool=True, timeout: int=-1)_ - Equivalent to `lxc stop` command.
+* _validateImageName(image: str)_ - Used to validate the image name for Incus compatibility.
+* _copy(source: str, name: str=None, *, snapshotName: str=None, remoteSource: str=None, remoteDestination: str=None, projectSource: str=None, projectDestination: str=None, config: dict=None, device: dict=None, profile: str=None, mode: str='pull', storage: str=None, allowInconsistent: bool=False, empty: bool=False, instanceOnly: bool=False, noProfile: bool=False, refresh: bool=False, stateless: bool=False, vm: bool=False)_ -  Equivalent to `incus copy` command.
+* _delete(force: bool=True)_ - Equivalent to `incus delete` command.
+* _exec(cmd: str)_ - Equivalent to `incus exec` command.
+* _init(image: str, name: str, *, remoteSource: str=None, config: dict=None, device: dict=None, profile: str=None, network: str=None, storage: str=None, empty: bool=False, noProfile: bool=False, vm: bool=False)_ - Equivalent to `incus init` command.
+* _launch(image: str, name: str, *, remoteSource: str=None, config: dict=None, device: dict=None, profile: str=None, network: str=None, storage: str=None, empty: bool=False, noProfile: bool=False, vm: bool=False)_ - Equivalent to `incus launch` command.
+* _pause()_ - Equivalent to `incus pause` command.
+* _rename(name: str)_ - Equivalent to `incus rename` command.
+* _restart(*, force: bool=True, timeout: int=-1)_ - Equivalent to `incus restart` command.
+* _restore(self, name: str, *, stateful: bool=False)_ - Equivalent to `incus restore` command.
+* _save(config: dict=None, devices: dict=None, profiles: list=None, description: str=None)_ - Equivalent to `yaml | incus config edit` command.
+* _snapshot(name: str, *, reuse: bool=False, stateful: bool=False)_ - Equivalent to `incus snapshot` command.
+* _start()_ - Equivalent to `incus start` command.
+* _stop(*, force: bool=True, timeout: int=-1)_ - Equivalent to `incus stop` command.
 
 #### Attributes
 
-* _lxd_ - `LXD` object.
+* _incus_ - `Incus` object.
 * _remote_ - `Remote` object.
 * _project_ - `Project` object.
-* _architecture_ - Read only attribute associated to the LXD object. Instance architecture.
-* _backups_ - Read only attribute associated to the LXD object. Instance backups.
-* _config_ - Attribute associated to the LXD object. Instance configuration. 
-* _createdAt_ - Read only attribute associated to the LXD object. Instance created at.
-* _description_ - Attribute associated to the LXD object. Instance description.
-* _devices_ - Attribute associated to the LXD object. Instance devices.
-* _ephemeral_ - Read only attribute associated to the LXD object. Instance if ephemeral.
-* _expandedConfig_ - Read only attribute associated to the LXD object. Instance expanded configuration.
-* _expandedDevices_ - Read only attribute associated to the LXD object. Instance expanded devices.
-* _lastUsedAt_ - Read only attribute associated to the LXD object. Instance last used at.
-* _location_ - Read only attribute associated to the LXD object. Instance location.
-* _profiles_ - Attribute associated to the LXD object. A list of instance profiles.
-* _snapshots_ - Read only attribute associated to the LXD object. A list of instance snapshots.
-* _state_ - Read only attribute associated to the LXD object. Instance state.
-* _stateful_ - Read only attribute associated to the LXD object. Instance stateful.
-* _status_ - Read only attribute associated to the LXD object. Instance state.
-* _statusCode_ - Read only attribute associated to the LXD object. Instance status code.
-* _type_ - Read only attribute associated to the LXD object. Instance type.
+* _architecture_ - Read only attribute associated to the Incus object. Instance architecture.
+* _backups_ - Read only attribute associated to the Incus object. Instance backups.
+* _config_ - Attribute associated to the Incus object. Instance configuration. 
+* _createdAt_ - Read only attribute associated to the Incus object. Instance created at.
+* _description_ - Attribute associated to the Incus object. Instance description.
+* _devices_ - Attribute associated to the Incus object. Instance devices.
+* _ephemeral_ - Read only attribute associated to the Incus object. Instance if ephemeral.
+* _expandedConfig_ - Read only attribute associated to the Incus object. Instance expanded configuration.
+* _expandedDevices_ - Read only attribute associated to the Incus object. Instance expanded devices.
+* _lastUsedAt_ - Read only attribute associated to the Incus object. Instance last used at.
+* _location_ - Read only attribute associated to the Incus object. Instance location.
+* _profiles_ - Attribute associated to the Incus object. A list of instance profiles.
+* _snapshots_ - Read only attribute associated to the Incus object. A list of instance snapshots.
+* _state_ - Read only attribute associated to the Incus object. Instance state.
+* _stateful_ - Read only attribute associated to the Incus object. Instance stateful.
+* _status_ - Read only attribute associated to the Incus object. Instance state.
+* _statusCode_ - Read only attribute associated to the Incus object. Instance status code.
+* _type_ - Read only attribute associated to the Incus object. Instance type.
 
 #### Examples
 
 ```python
-import lxd
+import pyincus
 
-remote = lxd.remotes.get(name="local")
+remote = pyincus.remotes.get(name="local")
 project = remote.projects.get(name="default")
 
 # List instances of a given project.
@@ -217,24 +217,24 @@ instance.restore(name="my-snapshot-name")
 
 #### Attributes
 
-* _lxd_ - `LXD` object.
+* _incus_ - `Incus` object.
 * _remote_ - `Remote` object.
 * _project_ - `Project` object.
 * _forwards_ - Empty instance of `NetworkForward` object to gain access to methods like `list`, `get` and `exists`.
-* _config_ - Read only attribute associated to the LXD object. Network configuration.
-* _description_ - Read only attribute associated to the LXD object. Network description.
-* _locations_ - Read only attribute associated to the LXD object. Network locations
-* _managed_ - Read only attribute associated to the LXD object. Network managed.
-* _status_ - Read only attribute associated to the LXD object. Network status.
-* _type_ - Read only attribute associated to the LXD object. Network type.
-* _usedBy_ - Read only attribute associated to the LXD object. Network used by what other object.
+* _config_ - Read only attribute associated to the Incus object. Network configuration.
+* _description_ - Read only attribute associated to the Incus object. Network description.
+* _locations_ - Read only attribute associated to the Incus object. Network locations
+* _managed_ - Read only attribute associated to the Incus object. Network managed.
+* _status_ - Read only attribute associated to the Incus object. Network status.
+* _type_ - Read only attribute associated to the Incus object. Network type.
+* _usedBy_ - Read only attribute associated to the Incus object. Network used by what other object.
 
 #### Examples
 
 ```python
-import lxd
+import pyincus
 
-remote = lxd.remotes.get(name="local")
+remote = pyincus.remotes.get(name="local")
 project = remote.projects.get(name="default")
 
 # List networks of a given project.
@@ -252,34 +252,34 @@ if(project.networks.exists(name="test")):
 
 #### Methods
 
-* _create(name: str, *, description: str=None, egress: list=None, ingress: list=None)_ - Equivalent to `lxc network acl create`
-* _delete()_ - Equivalent to `lxc network acl delete`
+* _create(name: str, *, description: str=None, egress: list=None, ingress: list=None)_ - Equivalent to `incus network acl create`
+* _delete()_ - Equivalent to `incus network acl delete`
 * _get(name: str)_ - Get a specific `NetworkACL` object.
-* _rename(name: str)_ - Equivalent to `lxc network acl rename`
-* _save(description: str=None, egress: list=None, ingress: list=None)_ - Equivalent to `yaml | lxc network acl edit`
+* _rename(name: str)_ - Equivalent to `incus network acl rename`
+* _save(description: str=None, egress: list=None, ingress: list=None)_ - Equivalent to `yaml | incus network acl edit`
 * _validateGress(gress: list)_ - Validate egress or ingress.
 
 #### Attributes
 
-* _lxd_ - `LXD` object.
+* _incus_ - `Incus` object.
 * _remote_ - `Remote` object.
 * _project_ - `Project` object.
-* _config_ - Read only attribute associated to the LXD object.
-* _description_ - Attribute associated to the LXD object. ACL description.
-* _egress_ - Attribute associated to the LXD object. A list of every egress rules.
-* _ingress_ - Attribute associated to the LXD object. A list of every ingress rules.
+* _config_ - Read only attribute associated to the Incus object.
+* _description_ - Attribute associated to the Incus object. ACL description.
+* _egress_ - Attribute associated to the Incus object. A list of every egress rules.
+* _ingress_ - Attribute associated to the Incus object. A list of every ingress rules.
 * _possibleActions_ - Read only attribute. List all possible values for the attribute action.
 * _possibleProtocols_ - Read only attribute. List all possible values for the attribute protocol.
 * _possibleRuleKeys_ - Read only attribute. List all possible keys for an ACL.
 * _possibleStates_ - Read only attribute. List all possible values for the attribute state.
-* _usedBy_ - Read only attribute associated to the LXD object. Network ACL used by what other object.
+* _usedBy_ - Read only attribute associated to the Incus object. Network ACL used by what other object.
 
 #### Examples
 
 ```python
-import lxd
+import pyincus
 
-remote = lxd.remotes.get(name="local")
+remote = pyincus.remotes.get(name="local")
 project = remote.projects.get(name="default")
 
 # List instances of a given project.
@@ -308,22 +308,22 @@ if(project.instances.exists(name="test")):
 
 #### Attributes
 
-* _lxd_ - `LXD` object.
+* _incus_ - `Incus` object.
 * _remote_ - `Remote` object.
 * _project_ - `Project` object.
 * _network_ - `Network` object.
-* _config_ - Read only attribute associated to the LXD object. Network forward configuration.
-* _description_ - Attribute associated to the LXD object. Network forward description.
-* _listenAddress_ - Read only attribute associated to the LXD object. Name of the network forward as they don't work by name but by address.
-* _ports_ - Read only attribute associated to the LXD object. List all port forwards.
+* _config_ - Read only attribute associated to the Incus object. Network forward configuration.
+* _description_ - Attribute associated to the Incus object. Network forward description.
+* _listenAddress_ - Read only attribute associated to the Incus object. Name of the network forward as they don't work by name but by address.
+* _ports_ - Read only attribute associated to the Incus object. List all port forwards.
 * _possibleProtocols_ - Read only attribute. List all possible values for the attribute protocol.
 
 #### Examples
 
 ```python
-import lxd
+import pyincus
 
-remote = lxd.remotes.get(name="local")
+remote = pyincus.remotes.get(name="local")
 project = remote.projects.get(name="default")
 network = project.networks.get(name="test")
 
