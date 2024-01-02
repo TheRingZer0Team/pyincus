@@ -5,7 +5,7 @@ from .exceptions import IncusException,\
                         IncusVersionException
 from .models.remotes import Remote
 
-INCUS_VERSION = 0.1
+INCUS_VERSION = 0.4
 
 class Incus(object):
     def __init__(self, cwd=None, binaryPath='/usr/bin/incus'):
