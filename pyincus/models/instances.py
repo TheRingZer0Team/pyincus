@@ -221,6 +221,11 @@ class Instance(Model):
         return Instance(parent=self.parent, name=name)
 
     def delete(self, *, force: bool=True):
+        if(force and "security.protection.delete" in self.config and (self.config["security.protection.delete"] == True or self.config["security.protection.delete"].lower() == 'true')):
+            tmpConfig = self.config
+            tmpConfig["security.protection.delete"] = "false"
+            self.config = tmpConfig
+
         result = self.incus.run(cmd=f"{self.incus.binaryPath} delete {'--force ' if force else ''}--project='{self.project.name}' '{self.remote.name}':'{self.name}'")
 
         if(result["error"]):
