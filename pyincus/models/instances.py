@@ -366,7 +366,7 @@ class Instance(Model):
     def restore(self, name: str, *, stateful: bool=False):
         self.validateObjectFormat(name)
 
-        result = self.incus.run(cmd=f"{self.incus.binaryPath} restore {'--stateful ' if stateful else ''}--project='{self.project.name}' '{self.remote.name}':'{self.name}' {name}")
+        result = self.incus.run(cmd=f"{self.incus.binaryPath} snapshot restore {'--stateful ' if stateful else ''}--project='{self.project.name}' '{self.remote.name}':'{self.name}' {name}")
 
         if(result["error"]):
             raise InstanceException(result["data"])
@@ -392,7 +392,7 @@ class Instance(Model):
     def snapshot(self, name: str, *, reuse: bool=False, stateful: bool=False):
         self.validateObjectFormat(name)
 
-        result = self.incus.run(cmd=f"{self.incus.binaryPath} snapshot {'--reuse ' if reuse else ''}{'--stateful ' if stateful else ''}--project='{self.project.name}' '{self.remote.name}':'{self.name}' {name}")
+        result = self.incus.run(cmd=f"{self.incus.binaryPath} snapshot create {'--reuse ' if reuse else ''}{'--stateful ' if stateful else ''}--project='{self.project.name}' '{self.remote.name}':'{self.name}' {name}")
 
         if(result["error"]):
             raise InstanceException(result["data"])
