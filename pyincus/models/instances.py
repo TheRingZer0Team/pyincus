@@ -3,8 +3,10 @@ import yaml
 import textwrap
 
 from pyincus.utils import   REGEX_DEVICE_NOT_FOUND,\
-                            REGEX_IMAGE_NAME, \
-                            REGEX_NETWORK_NOT_FOUND_COPY
+                            REGEX_EMPTY_BODY,\
+                            REGEX_IMAGE_NAME,\
+                            REGEX_NETWORK_NOT_FOUND_COPY,\
+                            isTrue
 
 from ._models import Model
 
@@ -205,6 +207,10 @@ class Instance(Model):
         )
 
         if(result["error"]):
+            if(REGEX_EMPTY_BODY.search(result["data"]) or "Operation not found" in result["data"]):
+                print(f"Command \"copy\" broke, attempt to get the content...")
+                return self.get(name=name)
+
             match = REGEX_DEVICE_NOT_FOUND.search(result["data"])
             if(match):
                 raise DeviceNotFoundException(match.group('device'))
@@ -221,36 +227,43 @@ class Instance(Model):
         return Instance(parent=self.parent, name=name)
 
     def delete(self, *, force: bool=True):
-        if(force and "security.protection.delete" in self.config and (self.config["security.protection.delete"] == True or self.config["security.protection.delete"].lower() == 'true')):
+        if(force and "security.protection.delete" in self.config and isTrue(self.config["security.protection.delete"])):
             tmpConfig = self.config
-            tmpConfig["security.protection.delete"] = "false"
+            tmpConfig["security.protection.delete"] = False
             self.config = tmpConfig
 
         result = self.incus.run(cmd=f"{self.incus.binaryPath} delete {'--force ' if force else ''}--project='{self.project.name}' '{self.remote.name}':'{self.name}'")
 
         if(result["error"]):
-            if('Instance not found' in result["data"]):
-                raise InstanceNotFoundException()
+            if(REGEX_EMPTY_BODY.search(result["data"]) or "Operation not found" in result["data"]):
+                if(self.exists(name=self.name)):
+                    self.delete(force=force)
+            else:
+                if('Instance not found' in result["data"]):
+                    raise InstanceNotFoundException()
 
-            raise InstanceException(result["data"])
+                raise InstanceException(result["data"])
 
     def exec(self, cmd: str):
         cmd = cmd.replace("'","'\"'\"'")
         result = self.incus.run(cmd=f"{self.incus.binaryPath} exec --project='{self.project.name}' '{self.remote.name}':'{self.name}' -- bash -c '{cmd}'")
 
         if(result["error"]):
-            if('Instance not found' in result["data"]):
-                raise InstanceNotFoundException()
-            if('Failed to retrieve PID of executing child process' in result["data"]):
-                raise InstanceExecFailedException()
-            if('Command not found' in result["data"]):
-                raise InstanceExecFailedException()
-            if('Instance is not running' in result["data"]):
-                raise InstanceIsNotRunningException()
-            if('Instance is frozen' in result["data"]):
-                raise InstanceIsPausedException()
+            if(REGEX_EMPTY_BODY.search(result["data"]) or "Operation not found" in result["data"]):
+                print(f"Command \"exec\" broke, it should have worked but there is no way of knowing.")
+            else:
+                if('Instance not found' in result["data"]):
+                    raise InstanceNotFoundException()
+                if('Failed to retrieve PID of executing child process' in result["data"]):
+                    raise InstanceExecFailedException()
+                if('Command not found' in result["data"]):
+                    raise InstanceExecFailedException()
+                if('Instance is not running' in result["data"]):
+                    raise InstanceIsNotRunningException()
+                if('Instance is frozen' in result["data"]):
+                    raise InstanceIsPausedException()
 
-            raise InstanceException(result["data"])
+                raise InstanceException(result["data"])
 
         return result["data"]
 
@@ -287,6 +300,9 @@ class Instance(Model):
         )
 
         if(result["error"]):
+            if(REGEX_EMPTY_BODY.search(result["data"]) or "Operation not found" in result["data"]):
+                print(f"Command \"init\" broke, attempt to get the content...")
+                return self.get(name=name)
             if('This "instances" entry already exists' in result["data"]):
                 raise InstanceAlreadyExistsException(name=name)
             raise InstanceException(result["data"])
@@ -326,6 +342,9 @@ class Instance(Model):
         )
 
         if(result["error"]):
+            if(REGEX_EMPTY_BODY.search(result["data"]) or "Operation not found" in result["data"]):
+                print(f"Command \"launch\" broke, attempt to get the content...")
+                return self.get(name=name)
             if('This "instances" entry already exists' in result["data"]):
                 raise InstanceAlreadyExistsException(name=name)
             raise InstanceException(result["data"])
@@ -336,9 +355,14 @@ class Instance(Model):
         result = self.incus.run(cmd=f"{self.incus.binaryPath} pause --project='{self.project.name}' '{self.remote.name}':'{self.name}'", timeout=timeout)
 
         if(result["error"]):
-            if("Error: The instance isn't running" == result["data"]):
-                raise InstanceIsNotRunningException()
-            raise InstanceException(result["data"])
+            if(REGEX_EMPTY_BODY.search(result["data"]) or "Operation not found" in result["data"]):
+                if(self.status.lower() != "frozen"):
+                    print(f"Command \"pause\" broke, attempt to pause again...")
+                    self.pause(timeout=timeout)
+            else:
+                if("Error: The instance isn't running" == result["data"]):
+                    raise InstanceIsNotRunningException()
+                raise InstanceException(result["data"])
 
     def rename(self, name: str):
         self.validateObjectFormat(name)
@@ -346,10 +370,17 @@ class Instance(Model):
         result = self.incus.run(cmd=f"{self.incus.binaryPath} rename --project='{self.project.name}' '{self.remote.name}':'{self.name}' '{name}'")
 
         if(result["error"]):
-            if(result["data"].startswith("Error: Name \"") and result["data"].endswith("\" already in use")):
-                raise NameAlreadyInUseException(result["data"][len("Error: Name \""):len("\" already in use")+1])
-            if("Error: Renaming of running instance not allowed" == result["data"]):
-                raise InstanceIsRunningException()
+            if(REGEX_EMPTY_BODY.search(result["data"]) or "Operation not found" in result["data"]):
+                if(self.exists(name=self.name)):
+                    if(self.status.lower() == "running"):
+                        raise InstanceIsRunningException()
+                    else:
+                        raise NameAlreadyInUseException(name)
+            else:
+                if(result["data"].startswith("Error: Name \"") and result["data"].endswith("\" already in use")):
+                    raise NameAlreadyInUseException(result["data"][len("Error: Name \""):len("\" already in use")+1])
+                if("Error: Renaming of running instance not allowed" == result["data"]):
+                    raise InstanceIsRunningException()
 
         self.attributes["name"] = name
 
@@ -357,11 +388,14 @@ class Instance(Model):
         result = self.incus.run(cmd=f"{self.incus.binaryPath} restart {'--force ' if force else ''}--timeout={timeout} --project='{self.project.name}' '{self.remote.name}':'{self.name}'")
 
         if(result["error"]):
-            if("Error: The instance is already stopped" == result["data"]):
-                raise InstanceIsAlreadyStoppedException()
-            if("context deadline exceeded" in result["data"]):
-                raise InstanceTimeoutExceededException()
-            raise InstanceException(result["data"])
+            if(REGEX_EMPTY_BODY.search(result["data"]) or "Operation not found" in result["data"]):
+                print(f"Command \"restart\" broke, it should have worked but there is no way of knowing.")
+            else:
+                if("Error: The instance is already stopped" == result["data"]):
+                    raise InstanceIsAlreadyStoppedException()
+                if("context deadline exceeded" in result["data"]):
+                    raise InstanceTimeoutExceededException()
+                raise InstanceException(result["data"])
 
     def restore(self, name: str, *, stateful: bool=False):
         self.validateObjectFormat(name)
@@ -369,25 +403,39 @@ class Instance(Model):
         result = self.incus.run(cmd=f"{self.incus.binaryPath} snapshot restore {'--stateful ' if stateful else ''}--project='{self.project.name}' '{self.remote.name}':'{self.name}' {name}")
 
         if(result["error"]):
-            raise InstanceException(result["data"])
+            if(REGEX_EMPTY_BODY.search(result["data"]) or "Operation not found" in result["data"]):
+                print(f"Command \"restore\" broke, it should have worked but since there is no way of knowing and that it should be fine to restore again, let's do it again.")
+                self.restore(name=name, stateful=stateful)
+            else:
+                raise InstanceException(result["data"])
 
     def start(self):
         result = self.incus.run(cmd=f"{self.incus.binaryPath} start --project='{self.project.name}' '{self.remote.name}':'{self.name}'")
 
         if(result["error"]):
-            raise InstanceException(result["data"])
+            if(REGEX_EMPTY_BODY.search(result["data"]) or "Operation not found" in result["data"]):
+                if(self.status.lower() != 'running'):
+                    print(f"Command \"start\" broke, retrying to start...")
+                    self.start()
+            else:
+                raise InstanceException(result["data"])
 
     def stop(self, *, force: bool=True, timeout: int=-1):
         result = self.incus.run(cmd=f"{self.incus.binaryPath} stop {'--force ' if force else ''}--timeout={timeout} --project='{self.project.name}' '{self.remote.name}':'{self.name}'")
 
         if(result["error"]):
-            if("Error: The instance is already stopped" == result["data"]):
-                raise InstanceIsAlreadyStoppedException()
-            if("Error: The instance isn't running" == result["data"]):
-                raise InstanceIsNotRunningException()
-            if("context deadline exceeded" in result["data"]):
-                raise InstanceTimeoutExceededException()
-            raise InstanceException(result["data"])
+            if(REGEX_EMPTY_BODY.search(result["data"]) or "Operation not found" in result["data"]):
+                if(self.status.lower() != "stopped"):
+                    print(f"Command \"stop\" broke, retrying to stop...")
+                    self.stop(force=force, timeout=timeout)
+            else:
+                if("Error: The instance is already stopped" == result["data"]):
+                    raise InstanceIsAlreadyStoppedException()
+                if("Error: The instance isn't running" == result["data"]):
+                    raise InstanceIsNotRunningException()
+                if("context deadline exceeded" in result["data"]):
+                    raise InstanceTimeoutExceededException()
+                raise InstanceException(result["data"])
 
     def snapshot(self, name: str, *, reuse: bool=False, stateful: bool=False):
         self.validateObjectFormat(name)
@@ -395,7 +443,16 @@ class Instance(Model):
         result = self.incus.run(cmd=f"{self.incus.binaryPath} snapshot create {'--reuse ' if reuse else ''}{'--stateful ' if stateful else ''}--project='{self.project.name}' '{self.remote.name}':'{self.name}' {name}")
 
         if(result["error"]):
-            raise InstanceException(result["data"])
+            if(REGEX_EMPTY_BODY.search(result["data"]) or "Operation not found" in result["data"]):
+                found = False
+                for snapshot in self.snapshots:
+                    if(snapshot["name"] == name):
+                        found = True
+                if(not found):
+                    print(f"Command \"snapshot\" broke, retrying to create...")
+                    self.snapshot(name=name, reuse=reuse, stateful=stateful)
+            else:
+                raise InstanceException(result["data"])
 
     def save(self, config: dict=None, devices: dict=None, profiles: list=None, description: str=None):
         self.refresh()
@@ -444,10 +501,15 @@ class Instance(Model):
         result = self.incus.run(cmd=f"{self.incus.binaryPath} config edit --project='{self.project.name}' '{self.remote.name}':'{self.name}'", input=yaml.safe_dump(self.attributes))
 
         if(result["error"]):
-            if("Error: yaml: unmarshal errors:" in result["data"]):
-                raise InstanceException("Error: yaml: unmarshal errors:")
-            if("Missing device type in config" in result["data"]):
-                raise DeviceNotFoundException()
-            raise InstanceException(result["data"])
+            if(REGEX_EMPTY_BODY.search(result["data"]) or "Operation not found" in result["data"]):
+                if(self.attributes != self.get(name=self.name).attributes):
+                    print(f"Command \"save\" broke, retrying to save...")
+                    self.save(config=config, devices=devices, profiles=profiles, description=description)
+            else:
+                if("Error: yaml: unmarshal errors:" in result["data"]):
+                    raise InstanceException("Error: yaml: unmarshal errors:")
+                if("Missing device type in config" in result["data"]):
+                    raise DeviceNotFoundException()
+                raise InstanceException(result["data"])
 
         self.attributes = self.get(name=self.name).attributes

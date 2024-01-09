@@ -3,7 +3,8 @@ import yaml
 
 from pyincus.exceptions import  IncusException,\
                                 InvalidIncusObjectNameFormatException
-from pyincus.utils import REGEX_INCUS_OBJECT_NAME
+from pyincus.utils import   REGEX_EMPTY_BODY,\
+                            REGEX_INCUS_OBJECT_NAME
 
 class Model(object):
     def __init__(self, **kwargs):
@@ -58,7 +59,11 @@ class Model(object):
         result = self.incus.run(cmd=cmd, **kwargs)
 
         if(result["error"]):
-            raise IncusException(result["data"])
+            if(REGEX_EMPTY_BODY.search(result["data"])):
+                print(f"Retrying listing \"{cmd}\"...")
+                return self.list(filter=filter, skipValidation=skipValidation, **kwargs)
+            else:
+                raise IncusException(result["data"])
 
         results = yaml.safe_load(result["data"])
 
@@ -104,7 +109,11 @@ class Model(object):
         result = self.incus.run(cmd=cmd, **kwargs)
 
         if(result["error"]):
-            return result["data"]
+            if(REGEX_EMPTY_BODY.search(result["data"])):
+                print(f"Retrying fetching \"{cmd}\"...")
+                return self._fetch(name=name, skipValidation=skipValidation, **kwargs)
+            else:
+                return result["data"]
         else:
             return self.__class__(parent=self.parent, **yaml.safe_load(result["data"]))
 
