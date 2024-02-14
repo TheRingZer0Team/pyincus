@@ -5,7 +5,7 @@ from .exceptions import IncusException,\
                         IncusVersionException
 from .models.remotes import Remote
 
-INCUS_VERSION = 0.4
+INCUS_VERSION = "0.5.1"
 
 class Incus(object):
     def __init__(self, cwd=None, binaryPath='/usr/bin/incus'):
@@ -55,8 +55,8 @@ class Incus(object):
         if(result["error"]):
             raise IncusException(f"Unexpected error: {result['error']}")
 
-        if(INCUS_VERSION != float(result["data"])):
-            raise IncusVersionException(libVersion=INCUS_VERSION, clientVersion=float(result["data"]))
+        if(INCUS_VERSION != result["data"]):
+            raise IncusVersionException(libVersion=INCUS_VERSION, clientVersion=result["data"])
 
 incus = Incus()
 remotes = incus.remotes
