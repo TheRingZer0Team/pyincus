@@ -153,7 +153,7 @@ class Instance(Model):
 
         return instance
 
-    def copy(self, source: str, name: str=None, *, snapshotName: str=None, remoteSource: str=None, remoteDestination: str=None, projectSource: str=None, projectDestination: str=None, config: dict=None, device: dict=None, profile: str=None, mode: str='pull', storage: str=None, allowInconsistent: bool=False, empty: bool=False, instanceOnly: bool=False, noProfile: bool=False, refresh: bool=False, stateless: bool=False, vm: bool=False):
+    def copy(self, source: str, name: str=None, *, snapshotName: str=None, remoteSource: str=None, remoteDestination: str=None, projectSource: str=None, projectDestination: str=None, config: dict=None, device: dict=None, profile: str=None, mode: str='pull', storage: str=None, allowInconsistent: bool=False, instanceOnly: bool=False, noProfile: bool=False, refresh: bool=False, stateless: bool=False):
         self.validateObjectFormat(source, name, snapshotName, remoteSource, remoteDestination, projectSource, projectDestination, profile, storage)
 
         if(name is None and not refresh):
@@ -197,11 +197,9 @@ class Instance(Model):
                     {f"--storage='{storage}' " if storage else ""}
                     {f"--target-project='{projectDestination}' " if projectDestination else ""}
                     {"--allow-inconsistent " if allowInconsistent else ""}
-                    {"--empty " if empty else ""}
                     {"--instance-only " if instanceOnly else ""}
                     {"--no-profile " if noProfile else ""}
                     {"--stateless " if stateless else ""}
-                    {"--vm " if vm else ""}
                 """
             ).replace("\n","")
         )
