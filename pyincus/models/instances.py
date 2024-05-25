@@ -362,7 +362,7 @@ class Instance(Model):
                     raise InstanceIsNotRunningException()
                 raise InstanceException(result["data"])
 
-    def move(self, source: str, name: str, *, remoteSource: str=None, remoteDestination: str=None, projectSource: str=None, projectDestination: str=None, config: dict=None, device: dict=None, profile: str=None, mode: str='pull', storage: str=None, allowInconsistent: bool=False, instanceOnly: bool=False, noProfile: bool=False, stateless: bool=False):
+    def move(self, source: str, *, name: str=None, remoteSource: str=None, remoteDestination: str=None, projectSource: str=None, projectDestination: str=None, config: dict=None, device: dict=None, profile: str=None, mode: str='pull', storage: str=None, allowInconsistent: bool=False, instanceOnly: bool=False, noProfile: bool=False, stateless: bool=False):
         self.validateObjectFormat(source, name, remoteSource, remoteDestination, projectSource, projectDestination, profile, storage)
 
         if(config):
