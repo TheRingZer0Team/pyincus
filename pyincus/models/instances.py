@@ -362,6 +362,80 @@ class Instance(Model):
                     raise InstanceIsNotRunningException()
                 raise InstanceException(result["data"])
 
+    def move(self, source: str, name: str, *, remoteSource: str=None, remoteDestination: str=None, projectSource: str=None, projectDestination: str=None, config: dict=None, device: dict=None, profile: str=None, mode: str='pull', storage: str=None, allowInconsistent: bool=False, instanceOnly: bool=False, noProfile: bool=False, stateless: bool=False):
+        self.validateObjectFormat(source, name, remoteSource, remoteDestination, projectSource, projectDestination, profile, storage)
+
+        if(config):
+            # Expect to receive {"key":"value"}
+            config = ' '.join([f"-c {k}={v}" for k,v in config.items()])
+
+        if(device):
+            # Expect to receive this format {"eth0":{"key":"value"},"root":{"key":"value"}}
+            for n, values in device.items():
+                device = ' '.join([f"-d {n},{k}={v}" for k,v in values.items()])
+
+        if(not mode in ["pull", "push", "relay"]):
+            raise InstanceException("""if(not mode in ["pull", "push", "relay"]):""")
+
+        if(remoteSource is None):
+            remoteSource = self.remote.name
+
+        if(remoteDestination is None):
+            remoteDestination = self.remote.name
+
+        if(projectSource is None):
+            projectSource = self.project.name
+
+        if(projectDestination is None):
+            projectDestination = self.project.name
+
+        if(name is None):
+            if(projectDestination == projectSource):`
+                name = source
+            else:
+                raise InstanceException(f"Name must be set when the source project ({projectSource}) and destination project ({projectDestination}) are not equal.")
+
+        result = self.incus.run(cmd=
+            textwrap.dedent(
+                f"""\
+                    {self.incus.binaryPath} move 
+                    {f"'{remoteSource}':" if remoteSource else ""}'{source}' 
+                    {f"'{remoteDestination}':" if remoteDestination else ""}'{name}' 
+                    {f"--project='{projectSource}' " if projectSource else ""} 
+                    {config if config else ""} 
+                    {device if device else ""} 
+                    {f"--mode='{mode}' " if mode else ""}
+                    {f"--profile='{profile}' " if not noProfile and profile else ""}
+                    {f"--storage='{storage}' " if storage else ""}
+                    {f"--target-project='{projectDestination}' " if projectDestination else ""}
+                    {"--allow-inconsistent " if allowInconsistent else ""}
+                    {"--instance-only " if instanceOnly else ""}
+                    {"--no-profile " if noProfile else ""}
+                    {"--stateless " if stateless else ""}
+                """
+            ).replace("\n","")
+        )
+
+        if(result["error"]):
+            if(REGEX_EMPTY_BODY.search(result["data"]) or "Operation not found" in result["data"]):
+                print(f"Command \"copy\" broke, attempt to get the content...")
+                return self.get(name=name)
+
+            match = REGEX_DEVICE_NOT_FOUND.search(result["data"])
+            if(match):
+                raise DeviceNotFoundException(match.group('device'))
+
+            match = REGEX_NETWORK_NOT_FOUND_COPY.search(result["data"])
+            if(match):
+                raise NetworkNotFoundException(match.group('network'))
+
+            if('This "instances" entry already exists' in result["data"]):
+                raise InstanceAlreadyExistsException(name=name)
+
+            raise InstanceException(result["data"])
+
+        return Instance(parent=self.parent, name=name)
+
     def rename(self, name: str):
         self.validateObjectFormat(name)
 
