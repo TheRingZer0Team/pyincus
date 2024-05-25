@@ -390,7 +390,7 @@ class Instance(Model):
             projectDestination = self.project.name
 
         if(name is None):
-            if(projectDestination == projectSource):
+            if(projectDestination != projectSource):
                 name = source
             else:
                 raise InstanceException(f"Name must be set when the source project ({projectSource}) and destination project ({projectDestination}) are not equal.")
