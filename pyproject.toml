@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=42"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pyincus"
+authors = [{ name = "RingZer0 Team" }]
+description = "Python library for Incus"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = ["pyyaml >= 5.4.1"]
+version = "0.2.0"
+
+[tool.setuptools]
+py-modules = ["pyincus"]
+
+[tool.ruff]
+line-length = 88
+indent-width = 4
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I"]
+ignore = []
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
