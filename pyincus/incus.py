@@ -7,8 +7,8 @@ INCUS_VERSION = "6.12"
 
 
 class Incus:
-    cwd = None
-    binaryPath = "/usr/bin/incus"
+    cwd: str | None = None
+    binaryPath: str = "/usr/bin/incus"
 
     @staticmethod
     def run(cmd: str, **kwargs) -> dict:

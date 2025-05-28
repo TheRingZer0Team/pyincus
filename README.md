@@ -1,10 +1,14 @@
 # pyincus
 
+## NOT UP TO DATE
+
+This README is not up to date.
+
 ## Description
 
-This library was written to be able to use Incus with Python. There are some solutions out there but they either lack features or they are limiting in what our projects requires. 
+This library was written to be able to use Incus with Python. There are some solutions out there but they either lack features or they are limiting in what our projects requires.
 
-The library uses the Incus client installed on your machine to work. Meaning that you need to manually create remotes in your Incus for this library to work. This way, it's possible to use this library for remotes that requires more than just a certificate or a password. 
+The library uses the Incus client installed on your machine to work. Meaning that you need to manually create remotes in your Incus for this library to work. This way, it's possible to use this library for remotes that requires more than just a certificate or a password.
 
 ## Usage
 
@@ -72,10 +76,10 @@ print(pyincus.remotes.list())
 
 # Check if the remote exists
 if(pyincus.remotes.exists(name="local")):
-	# Fetch the remote
-	remote = pyincus.remotes.get(name="local")
+ # Fetch the remote
+ remote = pyincus.remotes.get(name="local")
 
-	print(remote.name)
+ print(remote.name)
 ```
 
 ### Project
@@ -87,7 +91,7 @@ if(pyincus.remotes.exists(name="local")):
 
 #### Attributes
 
-* _acls_ - 
+* _acls_ -
 * _incus_ - `Incus` object.
 * _remote_ - `Remote` object.
 * _instances_ - Empty instance of `Instance` object to gain access to methods like `list`, `get` and `exists`.
@@ -108,10 +112,10 @@ print(remote.projects.list())
 
 # Check if the project exists
 if(remote.projects.exists(name="default")):
-	# Fetch the project
-	project = remote.projects.get(name="default")
+ # Fetch the project
+ project = remote.projects.get(name="default")
 
-	print(project.name)
+ print(project.name)
 ```
 
 ### Instance
@@ -141,7 +145,7 @@ if(remote.projects.exists(name="default")):
 * _project_ - `Project` object.
 * _architecture_ - Read only attribute associated to the Incus object. Instance architecture.
 * _backups_ - Read only attribute associated to the Incus object. Instance backups.
-* _config_ - Attribute associated to the Incus object. Instance configuration. 
+* _config_ - Attribute associated to the Incus object. Instance configuration.
 * _createdAt_ - Read only attribute associated to the Incus object. Instance created at.
 * _description_ - Attribute associated to the Incus object. Instance description.
 * _devices_ - Attribute associated to the Incus object. Instance devices.
@@ -171,21 +175,21 @@ print(project.instances.list())
 
 # Check if the instance exists
 if(project.instances.exists(name="test")):
-	# Fetch the instance
-	instance = project.instances.get(name="test")
+ # Fetch the instance
+ instance = project.instances.get(name="test")
 
-	print(instance.name)
+ print(instance.name)
 
-	# If the state of the instance is running, pause it.
-	if(instance.state.lower() == "running"):
-		instance.pause()
-	
-	# If the state of the instance is frozen, stop it.
-	if(instance.state.lower() == "frozen"):
-		instance.stop()
+ # If the state of the instance is running, pause it.
+ if(instance.state.lower() == "running"):
+  instance.pause()
+ 
+ # If the state of the instance is frozen, stop it.
+ if(instance.state.lower() == "frozen"):
+  instance.stop()
 
-	# Delete the instance.
-	instance.delete()
+ # Delete the instance.
+ instance.delete()
 
 # Create and start an instance.
 instance = project.instances.launch(image="ubuntu/22.04", name="test", remoteSource="images", config={"description":"Test description"})
@@ -242,10 +246,10 @@ print(project.networks.list())
 
 # Check if the network exists
 if(project.networks.exists(name="test")):
-	# Fetch the network
-	network = project.networks.get(name="test")
+ # Fetch the network
+ network = project.networks.get(name="test")
 
-	print(network.name)
+ print(network.name)
 ```
 
 ### NetworkACL
@@ -287,10 +291,10 @@ print(project.instances.list())
 
 # Check if the instance exists
 if(project.instances.exists(name="test")):
-	# Fetch the instance
-	instance = project.instances.get(name="test")
+ # Fetch the instance
+ instance = project.instances.get(name="test")
 
-	print(instance.name)
+ print(instance.name)
 ```
 
 ### NetworkForward
@@ -332,12 +336,12 @@ print(network.forwards.list())
 
 # Check if the forward exists
 if(network.forwards.exists(listenAddress="10.0.0.1")):
-	# Fetch the forward
-	forward = network.forwards.get(listenAddress="10.0.0.1")
+ # Fetch the forward
+ forward = network.forwards.get(listenAddress="10.0.0.1")
 
-	print(forward.name)
+ print(forward.name)
 
-	forward.addPort(protocol="tcp", listenPorts="80,443,9000-9005", targetAddress="10.0.0.2")
-	
-	forward.removePort(protocol="tcp", listenPorts="80,443,9000-9005")
+ forward.addPort(protocol="tcp", listenPorts="80,443,9000-9005", targetAddress="10.0.0.2")
+ 
+ forward.removePort(protocol="tcp", listenPorts="80,443,9000-9005")
 ```
