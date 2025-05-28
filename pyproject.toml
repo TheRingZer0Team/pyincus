@@ -14,9 +14,6 @@ version = "0.2.0"
 [tool.setuptools]
 py-modules = ["pyincus"]
 
-[tool.setuptools.packages.find]
-where = ["."]
-
 [tool.ruff]
 line-length = 88
 indent-width = 4

@@ -80,7 +80,7 @@ class NetworkACL:
         return self.get(project=self.project, name=self.name).attributes["description"]
 
     @description.setter
-    def description(self, value: str):
+    def description(self, value: str) -> None:
         self.save(description=value)
 
     @property
@@ -88,7 +88,7 @@ class NetworkACL:
         return self.get(project=self.project, name=self.name).attributes["egress"]
 
     @egress.setter
-    def egress(self, value: list):
+    def egress(self, value: list) -> None:
         self.save(egress=value)
 
     @property
@@ -96,7 +96,7 @@ class NetworkACL:
         return self.get(project=self.project, name=self.name).attributes["ingress"]
 
     @ingress.setter
-    def ingress(self, value: list):
+    def ingress(self, value: list) -> None:
         self.save(ingress=value)
 
     @property
@@ -300,7 +300,9 @@ class NetworkACL:
                     raise InvalidACLGressException()
 
                 if "action" not in g or not isinstance(g["action"], str):
-                    raise InvalidACLRuleActionException(allowed=NetworkACL.possibleActions)
+                    raise InvalidACLRuleActionException(
+                        allowed=NetworkACL.possibleActions
+                    )
 
                 if g["action"] not in NetworkACL.possibleActions:
                     raise InvalidACLRuleActionException(
@@ -308,14 +310,19 @@ class NetworkACL:
                     )
 
                 if "state" not in g or not isinstance(g["state"], str):
-                    raise InvalidACLRuleStateException(allowed=NetworkACL.possibleStates)
+                    raise InvalidACLRuleStateException(
+                        allowed=NetworkACL.possibleStates
+                    )
 
                 if g["state"] not in NetworkACL.possibleStates:
                     raise InvalidACLRuleStateException(
                         allowed=NetworkACL.possibleStates, state=g["state"]
                     )
 
-                if "protocol" in g and g["protocol"] not in NetworkACL.possibleProtocols:
+                if (
+                    "protocol" in g
+                    and g["protocol"] not in NetworkACL.possibleProtocols
+                ):
                     raise InvalidACLRuleProtocolException(
                         allowed=NetworkACL.possibleProtocols, protocol=g["protocol"]
                     )
@@ -332,7 +339,9 @@ class NetworkACL:
                         continue
 
                     if k not in NetworkACL.possibleRuleKeys:
-                        raise InvalidACLRuleKeyException(allowed=NetworkACL.possibleRuleKeys)
+                        raise InvalidACLRuleKeyException(
+                            allowed=NetworkACL.possibleRuleKeys
+                        )
 
                     if not isinstance(k, str):
                         raise InvalidACLRuleKeyException(

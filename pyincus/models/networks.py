@@ -127,7 +127,7 @@ class Network:
         return self.get(project=self.project, name=self.name).attributes["config"]
 
     @config.setter
-    def config(self, value: dict[str, str]):
+    def config(self, value: dict[str, str]) -> None:
         self.save(config=value)
 
     @property
@@ -135,7 +135,7 @@ class Network:
         return self.get(project=self.project, name=self.name).attributes["description"]
 
     @description.setter
-    def description(self, value: str):
+    def description(self, value: str) -> None:
         self.save(description=value)
 
     @property
@@ -155,7 +155,7 @@ class Network:
         return self.get(project=self.project, name=self.name).attributes["status"]
 
     @property
-    def locations(self):
+    def locations(self) -> list:
         return self.get(project=self.project, name=self.name).attributes["locations"]
 
     def __str__(self) -> str:
@@ -310,7 +310,7 @@ class Network:
 
         return network
 
-    def delete(self):
+    def delete(self) -> None:
         result = Incus.run(
             cmd=f"{Incus.binaryPath} network delete --project='{self.project.name}' '{self.project.remote.name}':'{self.name}'"
         )
@@ -326,7 +326,7 @@ class Network:
     def refresh(self) -> None:
         self.__attributes = self.get(project=self.project, name=self.name).attributes
 
-    def rename(self, name: str):
+    def rename(self, name: str) -> None:
         validateObjectFormat(name)
 
         result = Incus.run(
@@ -343,7 +343,7 @@ class Network:
 
     def save(
         self, *, description: str | None = None, config: dict[str, str] | None = None
-    ):
+    ) -> None:
         self.refresh()
 
         if description is not None:

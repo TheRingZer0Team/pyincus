@@ -69,7 +69,7 @@ class Instance:
         return self.get(project=self.project, name=self.name).attributes["config"]
 
     @config.setter
-    def config(self, value: dict):
+    def config(self, value: dict) -> None:
         self.save(config=value)
 
     @property
@@ -77,7 +77,7 @@ class Instance:
         return self.get(project=self.project, name=self.name).attributes["devices"]
 
     @devices.setter
-    def devices(self, value: dict[str, dict]):
+    def devices(self, value: dict[str, dict]) -> None:
         self.save(devices=value)
 
     @property
@@ -89,7 +89,7 @@ class Instance:
         return self.get(project=self.project, name=self.name).attributes["profiles"]
 
     @profiles.setter
-    def profiles(self, value: list[str]):
+    def profiles(self, value: list[str]) -> None:
         self.save(profiles=value)
 
     @property
@@ -101,7 +101,7 @@ class Instance:
         return self.get(project=self.project, name=self.name).attributes["description"]
 
     @description.setter
-    def description(self, value: str):
+    def description(self, value: str) -> None:
         self.save(description=value)
 
     @property
@@ -141,7 +141,7 @@ class Instance:
         return self.get(project=self.project, name=self.name).attributes["type"]
 
     @property
-    def backups(self):
+    def backups(self) -> list:
         return self.get(project=self.project, name=self.name).attributes["backups"]
 
     @property
@@ -149,7 +149,7 @@ class Instance:
         return self.get(project=self.project, name=self.name).attributes["state"]
 
     @property
-    def snapshots(self):
+    def snapshots(self) -> list:
         return self.get(project=self.project, name=self.name).attributes["snapshots"]
 
     @classmethod
@@ -324,7 +324,7 @@ class Instance:
 
         return Instance(project=project, name=name)
 
-    def delete(self, *, force: bool = True):
+    def delete(self, *, force: bool = True)->None:
         if (
             force
             and "security.protection.delete" in self.config
@@ -351,7 +351,7 @@ class Instance:
 
                 raise InstanceException(result["data"])
 
-    def exec(self, cmd: str):
+    def exec(self, cmd: str) -> str:
         cmd = cmd.replace("'", "'\"'\"'")
         result = Incus.run(
             cmd=f"{Incus.binaryPath} exec --project='{self.project.name}' '{self.project.remote.name}':'{self.name}' -- bash -c '{cmd}'"
@@ -382,6 +382,8 @@ class Instance:
 
                 raise InstanceException(result["data"])
 
+        return result["data"]
+
     @classmethod
     def init(
         cls,
@@ -398,7 +400,7 @@ class Instance:
         empty: bool = False,
         noProfile: bool = False,
         vm: bool = False,
-    ):
+    ) -> Instance:
         validateObjectFormat(
             name,
             project.remote.name,
@@ -471,7 +473,7 @@ class Instance:
         empty: bool = False,
         noProfile: bool = False,
         vm: bool = False,
-    ):
+    ) -> Instance:
         validateObjectFormat(
             name,
             project.name,
@@ -547,7 +549,7 @@ class Instance:
         instanceOnly: bool = False,
         noProfile: bool = False,
         stateless: bool = False,
-    ):
+    ) -> Instance:
         validateObjectFormat(
             source,
             name,
@@ -640,9 +642,7 @@ class Instance:
 
         return Instance(project=self.project, name=name)
 
-        return result["data"]
-
-    def pause(self, timeout: int | None = None):
+    def pause(self, timeout: int | None = None) -> None:
         result = Incus.run(
             cmd=f"{Incus.binaryPath} pause --project='{self.project.name}' '{self.project.remote.name}':'{self.name}'",
             timeout=timeout,
@@ -661,7 +661,7 @@ class Instance:
                     raise InstanceIsNotRunningException()
                 raise InstanceException(result["data"])
 
-    def rename(self, name: str):
+    def rename(self, name: str) -> None:
         validateObjectFormat(name)
 
         result = Incus.run(
@@ -692,7 +692,7 @@ class Instance:
 
         self.attributes["name"] = name
 
-    def restart(self, *, force: bool = True, timeout: int = -1):
+    def restart(self, *, force: bool = True, timeout: int = -1) -> None:
         result = Incus.run(
             cmd=f"{Incus.binaryPath} restart {'--force ' if force else ''}--timeout={timeout} --project='{self.project.name}' '{self.project.remote.name}':'{self.name}'"
         )
@@ -712,7 +712,7 @@ class Instance:
                     raise InstanceTimeoutExceededException()
                 raise InstanceException(result["data"])
 
-    def restore(self, name: str, *, stateful: bool = False):
+    def restore(self, name: str, *, stateful: bool = False) -> None:
         validateObjectFormat(name)
 
         result = Incus.run(
@@ -731,7 +731,7 @@ class Instance:
             else:
                 raise InstanceException(result["data"])
 
-    def start(self):
+    def start(self) -> None:
         result = Incus.run(
             cmd=f"{Incus.binaryPath} start --project='{self.project.name}' '{self.project.remote.name}':'{self.name}'"
         )
@@ -747,7 +747,7 @@ class Instance:
             else:
                 raise InstanceException(result["data"])
 
-    def stop(self, *, force: bool = True, timeout: int = -1):
+    def stop(self, *, force: bool = True, timeout: int = -1) -> None:
         result = Incus.run(
             cmd=f"{Incus.binaryPath} stop {'--force ' if force else ''}--timeout={timeout} --project='{self.project.name}' '{self.project.remote.name}':'{self.name}'"
         )
@@ -775,7 +775,7 @@ class Instance:
         devices: dict | None = None,
         profiles: list | None = None,
         description: str | None = None,
-    ):
+    ) -> None:
         self.refresh()
 
         if description is not None:
@@ -849,7 +849,9 @@ class Instance:
 
         self.attributes = self.get(project=self.project, name=self.name).attributes
 
-    def snapshot(self, name: str, *, reuse: bool = False, stateful: bool = False):
+    def snapshot(
+        self, name: str, *, reuse: bool = False, stateful: bool = False
+    ) -> None:
         validateObjectFormat(name)
 
         result = Incus.run(

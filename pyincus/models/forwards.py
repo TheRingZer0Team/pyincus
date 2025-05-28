@@ -71,11 +71,11 @@ class NetworkForward:
         ).attributes["description"]
 
     @description.setter
-    def description(self, value: str):
+    def description(self, value: str) -> None:
         self.save(description=value)
 
     @property
-    def ports(self):
+    def ports(self) -> list:
         return self.get(
             network=self.network, listenAddress=self.listenAddress
         ).attributes["ports"]
