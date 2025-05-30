@@ -278,7 +278,7 @@ class Instance:
         if projectTarget is None:
             projectTarget = project
 
-        name = source
+        name = name if name else source
 
         result = Incus.run(
             cmd=textwrap.dedent(
@@ -307,7 +307,7 @@ class Instance:
                 or "Operation not found" in result["data"]
             ):
                 print('Command "copy" broke, attempt to get the content...')
-                return cls.get(project=project, name=name if name else source)
+                return cls.get(project=project, name=name)
 
             match = REGEX_DEVICE_NOT_FOUND.search(result["data"])
             if match:
