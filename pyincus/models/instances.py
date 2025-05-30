@@ -284,15 +284,15 @@ class Instance:
             cmd=textwrap.dedent(
                 f"""\
                     {Incus.binaryPath} copy 
-                    {f"'{project.remote.name}':" if project.remote.name else ""}'{source}'{f"/'{snapshotName}'" if snapshotName else ""} 
-                    {f"'{projectTarget.remote.name}':" if projectTarget.remote.name else ""}'{name}' 
-                    {f"--project='{project.name}' " if project.name else ""} 
+                    {f"'{project.remote.name}':" if project.remote else ""}'{source}'{f"/'{snapshotName}'" if snapshotName else ""} 
+                    {f"'{projectTarget.remote.name}':" if projectTarget.remote else ""}'{name}' 
+                    {f"--project='{project.name}' " if project else ""} 
                     {configToString if configToString else ""} 
                     {deviceToString if deviceToString else ""} 
                     {f"--mode='{mode}' " if mode else ""}
                     {f"--profile='{profile}' " if not noProfile and profile else ""}
                     {f"--storage='{storage}' " if storage else ""}
-                    {f"--target-project='{projectTarget}' " if projectTarget else ""}
+                    {f"--target-project='{projectTarget.name}' " if projectTarget else ""}
                     {"--allow-inconsistent " if allowInconsistent else ""}
                     {"--instance-only " if instanceOnly else ""}
                     {"--no-profile " if noProfile else ""}
