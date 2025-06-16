@@ -324,7 +324,7 @@ class Instance:
 
         return Instance(project=project, name=name)
 
-    def delete(self, *, force: bool = True)->None:
+    def delete(self, *, force: bool = True) -> None:
         if (
             force
             and "security.protection.delete" in self.config
@@ -351,10 +351,11 @@ class Instance:
 
                 raise InstanceException(result["data"])
 
-    def exec(self, cmd: str) -> str:
+    def exec(self, cmd: str, input: str | None = None) -> str:
         cmd = cmd.replace("'", "'\"'\"'")
         result = Incus.run(
-            cmd=f"{Incus.binaryPath} exec --project='{self.project.name}' '{self.project.remote.name}':'{self.name}' -- bash -c '{cmd}'"
+            cmd=f"{Incus.binaryPath} exec --project='{self.project.name}' '{self.project.remote.name}':'{self.name}' -- bash -c '{cmd}'",
+            input=input,
         )
 
         if result["error"]:
