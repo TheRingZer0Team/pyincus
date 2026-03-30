@@ -87,7 +87,7 @@ class NetworkForward:
         if not skipValidation:
             validateObjectFormat(name)
 
-        cmd = f"{Incus.binaryPath} network forward show --project='{network.project.name}' '{network.project.remote.name}':'{name}' '{kwargs['listenAddress']}'"
+        cmd = f"{Incus.binaryPath} --project='{network.project.name}' network forward show '{network.project.remote.name}':'{name}' '{kwargs['listenAddress']}'"
         del kwargs["listenAddress"]
         result = Incus.run(cmd=cmd, **kwargs)
 
@@ -149,7 +149,7 @@ class NetworkForward:
             validateObjectFormat(filter)
 
         objs = []
-        cmd = f"{Incus.binaryPath} network forward list -fyaml --project='{network.project.name}' '{network.project.remote.name}':'{filter}'"
+        cmd = f"{Incus.binaryPath} --project='{network.project.name}' network forward list '{network.project.remote.name}':'{filter}'  -fyaml"
 
         result = Incus.run(cmd=cmd, **kwargs)
 
@@ -256,7 +256,7 @@ class NetworkForward:
                 )
 
         result = Incus.run(
-            cmd=f"{Incus.binaryPath} network forward port add --project='{self.network.project.name}' '{self.network.project.remote.name}':'{self.network.name}' '{self.listenAddress}' '{protocol}' '{listenPorts}' '{targetAddress}'{f' {chr(39)}{targetPorts}{chr(39)} ' if targetPorts else ''}"
+            cmd=f"{Incus.binaryPath} --project='{self.network.project.name}' network forward port add '{self.network.project.remote.name}':'{self.network.name}' '{self.listenAddress}' '{protocol}' '{listenPorts}' '{targetAddress}'{f' {chr(39)}{targetPorts}{chr(39)} ' if targetPorts else ''}"
         )
 
         if result["error"]:
@@ -292,7 +292,7 @@ class NetworkForward:
             NetworkForward.validatePortList(ports=listenPorts)
 
         result = Incus.run(
-            cmd=f"{Incus.binaryPath} network forward port remove --project='{self.network.project.name}' '{self.network.project.remote.name}':'{self.network.name}' '{self.listenAddress}' '{protocol}' '{listenPorts}'"
+            cmd=f"{Incus.binaryPath} --project='{self.network.project.name}' network forward port remove '{self.network.project.remote.name}':'{self.network.name}' '{self.listenAddress}' '{protocol}' '{listenPorts}'"
         )
 
         if result["error"]:
@@ -310,7 +310,7 @@ class NetworkForward:
             self.attributes["description"] = description
 
         result = Incus.run(
-            cmd=f"{Incus.binaryPath} network forward edit --project='{self.network.project.name}' '{self.network.project.remote.name}':'{self.network.name}' '{self.listenAddress}'",
+            cmd=f"{Incus.binaryPath} --project='{self.network.project.name}' network forward edit '{self.network.project.remote.name}':'{self.network.name}' '{self.listenAddress}'",
             input=yaml.safe_dump(self.attributes),
         )
 

@@ -186,7 +186,7 @@ class Instance:
             validateObjectFormat(filter)
 
         objs = []
-        cmd = f"{Incus.binaryPath} list -fyaml --project='{project.name}' '{project.remote.name}':'{filter}'"
+        cmd = f"{Incus.binaryPath} --project='{project.name}' list '{project.remote.name}': '{filter}' -fyaml"
         result = Incus.run(cmd=cmd, **kwargs)
 
         if result["error"]:
@@ -283,10 +283,11 @@ class Instance:
         result = Incus.run(
             cmd=textwrap.dedent(
                 f"""\
-                    {Incus.binaryPath} copy 
+                    {Incus.binaryPath}  
+                    {f"--project='{project.name}' " if project else ""} 
+                    copy 
                     {f"'{project.remote.name}':" if project.remote else ""}'{source}'{f"/'{snapshotName}'" if snapshotName else ""} 
                     {f"'{projectTarget.remote.name}':" if projectTarget.remote else ""}'{name}' 
-                    {f"--project='{project.name}' " if project else ""} 
                     {configToString if configToString else ""} 
                     {deviceToString if deviceToString else ""} 
                     {f"--mode='{mode}' " if mode else ""}
@@ -335,7 +336,7 @@ class Instance:
             self.config = tmpConfig
 
         result = Incus.run(
-            cmd=f"{Incus.binaryPath} delete {'--force ' if force else ''}--project='{self.project.name}' '{self.project.remote.name}':'{self.name}'"
+            cmd=f"{Incus.binaryPath} --project='{self.project.name}' delete {'--force ' if force else ''}'{self.project.remote.name}':'{self.name}'"
         )
 
         if result["error"]:
@@ -354,7 +355,7 @@ class Instance:
     def exec(self, cmd: str, input: str | None = None) -> str:
         cmd = cmd.replace("'", "'\"'\"'")
         result = Incus.run(
-            cmd=f"{Incus.binaryPath} exec --project='{self.project.name}' '{self.project.remote.name}':'{self.name}' -- bash -c '{cmd}'",
+            cmd=f"{Incus.binaryPath} --project='{self.project.name}' exec '{self.project.remote.name}':'{self.name}' -- bash -c '{cmd}'",
             input=input,
         )
 
@@ -429,10 +430,11 @@ class Instance:
         result = Incus.run(
             cmd=textwrap.dedent(
                 f"""\
-                    {Incus.binaryPath} init 
+                    {Incus.binaryPath} 
+                    --project='{project.name}' 
+                    init 
                     {f"'{projectSource.remote.name}':" if projectSource else ""}'{image}' 
                     '{project.remote.name}':'{name}' 
-                    --project='{project.name}' 
                     {configToString if configToString else ""} 
                     {deviceToString if deviceToString else ""} 
                     {f"--network='{network}' " if network else ""}
@@ -503,10 +505,11 @@ class Instance:
         result = Incus.run(
             cmd=textwrap.dedent(
                 f"""\
-                    {Incus.binaryPath} launch 
+                    {Incus.binaryPath} 
+                    --project='{project.name}' 
+                    launch 
                     {f"'{projectSource.remote.name}':" if projectSource else ""}'{image}' 
                     '{project.remote.name}':'{name}' 
-                    --project='{project.name}' 
                     {configToString if configToString else ""} 
                     {deviceToString if deviceToString else ""} 
                     {f"--network='{network}' " if network else ""}
@@ -602,10 +605,11 @@ class Instance:
         result = Incus.run(
             cmd=textwrap.dedent(
                 f"""\
-                    {Incus.binaryPath} move 
+                    {Incus.binaryPath} 
+                    {f"--project='{projectSource}' " if projectSource else ""} 
+                    move 
                     {f"'{remoteSource}':" if remoteSource else ""}'{source}' 
                     {f"'{remoteDestination}':" if remoteDestination else ""}'{name}' 
-                    {f"--project='{projectSource}' " if projectSource else ""} 
                     {configToString if configToString else ""} 
                     {deviceToString if deviceToString else ""} 
                     {f"--mode='{mode}' " if mode else ""}
@@ -645,7 +649,7 @@ class Instance:
 
     def pause(self, timeout: int | None = None) -> None:
         result = Incus.run(
-            cmd=f"{Incus.binaryPath} pause --project='{self.project.name}' '{self.project.remote.name}':'{self.name}'",
+            cmd=f"{Incus.binaryPath} --project='{self.project.name}' pause '{self.project.remote.name}':'{self.name}'",
             timeout=timeout,
         )
 
@@ -666,7 +670,7 @@ class Instance:
         validateObjectFormat(name)
 
         result = Incus.run(
-            cmd=f"{Incus.binaryPath} rename --project='{self.project.name}' '{self.project.remote.name}':'{self.name}' '{name}'"
+            cmd=f"{Incus.binaryPath} --project='{self.project.name}' rename '{self.project.remote.name}':'{self.name}' '{name}'"
         )
 
         if result["error"]:
@@ -695,7 +699,7 @@ class Instance:
 
     def restart(self, *, force: bool = True, timeout: int = -1) -> None:
         result = Incus.run(
-            cmd=f"{Incus.binaryPath} restart {'--force ' if force else ''}--timeout={timeout} --project='{self.project.name}' '{self.project.remote.name}':'{self.name}'"
+            cmd=f"{Incus.binaryPath} --project='{self.project.name}' restart {'--force ' if force else ''}--timeout={timeout} '{self.project.remote.name}':'{self.name}'"
         )
 
         if result["error"]:
@@ -717,7 +721,7 @@ class Instance:
         validateObjectFormat(name)
 
         result = Incus.run(
-            cmd=f"{Incus.binaryPath} snapshot restore {'--stateful ' if stateful else ''}--project='{self.project.name}' '{self.project.remote.name}':'{self.name}' {name}"
+            cmd=f"{Incus.binaryPath} --project='{self.project.name}' snapshot restore {'--stateful ' if stateful else ''}'{self.project.remote.name}':'{self.name}' {name}"
         )
 
         if result["error"]:
@@ -734,7 +738,7 @@ class Instance:
 
     def start(self) -> None:
         result = Incus.run(
-            cmd=f"{Incus.binaryPath} start --project='{self.project.name}' '{self.project.remote.name}':'{self.name}'"
+            cmd=f"{Incus.binaryPath} --project='{self.project.name}' start '{self.project.remote.name}':'{self.name}'"
         )
 
         if result["error"]:
@@ -750,7 +754,7 @@ class Instance:
 
     def stop(self, *, force: bool = True, timeout: int = -1) -> None:
         result = Incus.run(
-            cmd=f"{Incus.binaryPath} stop {'--force ' if force else ''}--timeout={timeout} --project='{self.project.name}' '{self.project.remote.name}':'{self.name}'"
+            cmd=f"{Incus.binaryPath} --project='{self.project.name}' stop {'--force ' if force else ''}--timeout={timeout} '{self.project.remote.name}':'{self.name}'"
         )
 
         if result["error"]:
@@ -821,7 +825,7 @@ class Instance:
             validateObjectFormat(*profiles)
 
         result = Incus.run(
-            cmd=f"{Incus.binaryPath} config edit --project='{self.project.name}' '{self.project.remote.name}':'{self.name}'",
+            cmd=f"{Incus.binaryPath} --project='{self.project.name}' config edit '{self.project.remote.name}':'{self.name}'",
             input=yaml.safe_dump(self.attributes),
         )
 
@@ -856,7 +860,7 @@ class Instance:
         validateObjectFormat(name)
 
         result = Incus.run(
-            cmd=f"{Incus.binaryPath} snapshot create {'--reuse ' if reuse else ''}{'--stateful ' if stateful else ''}--project='{self.project.name}' '{self.project.remote.name}':'{self.name}' {name}"
+            cmd=f"{Incus.binaryPath} --project='{self.project.name}' snapshot create {'--reuse ' if reuse else ''}{'--stateful ' if stateful else ''}'{self.project.remote.name}':'{self.name}' {name}"
         )
 
         if result["error"]:

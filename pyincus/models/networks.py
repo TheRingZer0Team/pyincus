@@ -174,7 +174,7 @@ class Network:
         result = Incus.run(
             cmd=(
                 cmd
-                := f"{Incus.binaryPath} network show --project='{project.name}' '{project.remote.name}':'{name}'"
+                := f"{Incus.binaryPath} --project='{project.name}' network show '{project.remote.name}':'{name}'"
             ),
             **kwargs,
         )
@@ -217,7 +217,7 @@ class Network:
             validateObjectFormat(filter)
 
         objs = []
-        cmd = f"{Incus.binaryPath} network list -fyaml --project='{project.name}' '{project.remote.name}':"
+        cmd = f"{Incus.binaryPath} --project='{project.name}' network list '{project.remote.name}': -fyaml"
 
         result = Incus.run(cmd=cmd, **kwargs)
 
@@ -291,7 +291,7 @@ class Network:
             configToString = " ".join([f"{k}={v}" for k, v in config.items()])
 
         result = Incus.run(
-            cmd=f"{Incus.binaryPath} network create --project='{project.name}' '{project.remote.name}':'{name}' --type={_type} {configToString if configToString else ''}"
+            cmd=f"{Incus.binaryPath} --project='{project.name}' network create '{project.remote.name}':'{name}' --type={_type} {configToString if configToString else ''}"
         )
 
         if result["error"]:
@@ -312,7 +312,7 @@ class Network:
 
     def delete(self) -> None:
         result = Incus.run(
-            cmd=f"{Incus.binaryPath} network delete --project='{self.project.name}' '{self.project.remote.name}':'{self.name}'"
+            cmd=f"{Incus.binaryPath} --project='{self.project.name}' network delete '{self.project.remote.name}':'{self.name}'"
         )
 
         if result["error"]:
@@ -330,7 +330,7 @@ class Network:
         validateObjectFormat(name)
 
         result = Incus.run(
-            cmd=f"{Incus.binaryPath} network rename --project='{self.project.name}' '{self.project.remote.name}':'{self.name}' '{name}'"
+            cmd=f"{Incus.binaryPath} --project='{self.project.name}' network rename '{self.project.remote.name}':'{self.name}' '{name}'"
         )
 
         if result["error"]:
@@ -377,7 +377,7 @@ class Network:
             self.attributes["config"] = config
 
         result = Incus.run(
-            cmd=f"{Incus.binaryPath} network edit --project='{self.project.name}' '{self.project.remote.name}':'{self.name}'",
+            cmd=f"{Incus.binaryPath} --project='{self.project.name}' network edit '{self.project.remote.name}':'{self.name}'",
             input=yaml.safe_dump(self.attributes),
         )
 

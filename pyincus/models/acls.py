@@ -113,7 +113,7 @@ class NetworkACL:
         result = Incus.run(
             cmd=(
                 cmd
-                := f"{Incus.binaryPath} network acl show --project='{project.name}' '{project.remote.name}':'{name}'"
+                := f"{Incus.binaryPath} --project='{project.name}' network acl show '{project.remote.name}':'{name}'"
             ),
             **kwargs,
         )
@@ -156,7 +156,7 @@ class NetworkACL:
             validateObjectFormat(filter)
 
         objs = []
-        cmd = f"{Incus.binaryPath} network acl list -fyaml --project='{project.name}' '{project.remote.name}':"
+        cmd = f"{Incus.binaryPath} --project='{project.name}' network acl list '{project.remote.name}': -fyaml"
 
         result = Incus.run(cmd=cmd, **kwargs)
 
@@ -207,7 +207,7 @@ class NetworkACL:
         validateObjectFormat(name)
 
         result = Incus.run(
-            cmd=f"{Incus.binaryPath} network acl create --project='{project.name}' '{project.remote.name}':'{name}'"
+            cmd=f"{Incus.binaryPath} --project='{project.name}' network acl create '{project.remote.name}':'{name}'"
         )
 
         if result["error"]:
@@ -228,7 +228,7 @@ class NetworkACL:
 
     def delete(self) -> None:
         result = Incus.run(
-            cmd=f"{Incus.binaryPath} network acl delete --project='{self.project.name}' '{self.project.remote.name}':'{self.name}'"
+            cmd=f"{Incus.binaryPath} --project='{self.project.name}' network acl delete '{self.project.remote.name}':'{self.name}'"
         )
 
         if result["error"]:
@@ -246,7 +246,7 @@ class NetworkACL:
         validateObjectFormat(name)
 
         result = Incus.run(
-            cmd=f"{Incus.binaryPath} network acl rename --project='{self.project.name}' '{self.project.remote.name}':'{self.name}' '{name}'"
+            cmd=f"{Incus.binaryPath} --project='{self.project.name}' network acl rename '{self.project.remote.name}':'{self.name}' '{name}'"
         )
 
         if result["error"]:
@@ -278,7 +278,7 @@ class NetworkACL:
             self.attributes["ingress"] = self.validateGress(gress=ingress)
 
         result = Incus.run(
-            cmd=f"{Incus.binaryPath} network acl edit --project='{self.project.name}' '{self.project.remote.name}':'{self.name}'",
+            cmd=f"{Incus.binaryPath} --project='{self.project.name}' network acl edit '{self.project.remote.name}':'{self.name}'",
             input=yaml.safe_dump(self.attributes),
         )
 
