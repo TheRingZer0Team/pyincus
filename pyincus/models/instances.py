@@ -241,7 +241,10 @@ class Instance:
         instanceOnly: bool = False,
         noProfile: bool = False,
         refresh: bool = False,
+        performRefresh: bool = False,
+        refreshExcludeOlder: bool = False,
         stateless: bool = False,
+        clusterTarget: str | None = None,
     ) -> Instance:
         validateObjectFormat(
             source,
@@ -293,11 +296,14 @@ class Instance:
                     {f"--mode='{mode}' " if mode else ""}
                     {f"--profile='{profile}' " if not noProfile and profile else ""}
                     {f"--storage='{storage}' " if storage else ""}
+                    {f"--target='{clusterTarget}' " if clusterTarget else ""}
                     {f"--target-project='{projectTarget.name}' " if projectTarget else ""}
                     {"--allow-inconsistent " if allowInconsistent else ""}
                     {"--instance-only " if instanceOnly else ""}
                     {"--no-profile " if noProfile else ""}
                     {"--stateless " if stateless else ""}
+                    {"--refresh " if performRefresh else ""}
+                    {"--refresh-exclude-older " if refreshExcludeOlder else ""}
                 """
             ).replace("\n", "")
         )
@@ -387,6 +393,40 @@ class Instance:
         return result["data"]
 
     @classmethod
+    def create(
+        cls,
+        project: Project,
+        image: str,
+        name: str,
+        *,
+        projectSource: Project | None = None,
+        config: dict | None = None,
+        device: dict[str, dict] | None = None,
+        profile: str | None = None,
+        network: str | None = None,
+        storage: str | None = None,
+        empty: bool = False,
+        noProfile: bool = False,
+        vm: bool = False,
+        clusterTarget: str | None = None,
+    ) -> Instance:
+        return Instance.init(
+            project=project,
+            image=image,
+            name=name,
+            projectSource=projectSource,
+            config=config,
+            device=device,
+            profile=profile,
+            network=network,
+            storage=storage,
+            empty=empty,
+            noProfile=noProfile,
+            vm=vm,
+            clusterTarget=clusterTarget,
+        )
+
+    @classmethod
     def init(
         cls,
         project: Project,
@@ -402,6 +442,7 @@ class Instance:
         empty: bool = False,
         noProfile: bool = False,
         vm: bool = False,
+        clusterTarget: str | None = None,
     ) -> Instance:
         validateObjectFormat(
             name,
@@ -440,6 +481,7 @@ class Instance:
                     {f"--network='{network}' " if network else ""}
                     {f"--profile='{profile}' " if not noProfile and profile else ""}
                     {f"--storage='{storage}' " if storage else ""}
+                    {f"--target='{clusterTarget}' " if clusterTarget else ""}
                     {"--empty " if empty else ""}
                     {"--no-profile " if noProfile else ""}
                     {"--vm " if vm else ""}
@@ -476,6 +518,7 @@ class Instance:
         empty: bool = False,
         noProfile: bool = False,
         vm: bool = False,
+        clusterTarget: str | None = None,
     ) -> Instance:
         validateObjectFormat(
             name,
@@ -515,6 +558,7 @@ class Instance:
                     {f"--network='{network}' " if network else ""}
                     {f"--profile='{profile}' " if not noProfile and profile else ""}
                     {f"--storage='{storage}' " if storage else ""}
+                    {f"--target='{clusterTarget}' " if clusterTarget else ""}
                     {"--empty " if empty else ""}
                     {"--no-profile " if noProfile else ""}
                     {"--vm " if vm else ""}
